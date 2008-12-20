@@ -1,0 +1,38 @@
+---
+abstract: 'Padre plugin for Perl6'
+author:
+  - 'Gabor Szabo'
+build_requires:
+  Test::Exception: 0.27
+  Test::More: 0.47
+  Test::NeedsDisplay: 1.05
+  Test::NoWarnings: 0.084
+distribution_type: module
+generated_by: 'Module::Install version 0.77'
+license: perl
+meta-spec:
+  url: http://module-build.sourceforge.net/META-spec-v1.4.html
+  version: 1.4
+name: Padre-Plugin-Perl6
+no_index:
+  directory:
+    -
+      - t
+      - xt
+      - eg
+      - share
+      - inc
+      - privinc
+    - inc
+requires:
+  Padre: 0.22
+  Readonly: 1.03
+  Syntax::Highlight::Perl6: 0.0295
+  URI: 1.37
+  perl: 5.008001
+resources:
+  bugtracker: http://padre.perlide.org/
+  homepage: http://padre.perlide.org/
+  license: http://dev.perl.org/licenses/
+  repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
+version: 0.01

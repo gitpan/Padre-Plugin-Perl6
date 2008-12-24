@@ -35,4 +35,4 @@ resources:
   homepage: http://padre.perlide.org/
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
-version: 0.012
+version: 0.013

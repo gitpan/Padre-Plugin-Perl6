@@ -27,7 +27,7 @@ no_index:
 requires:
   Padre: 0.22
   Readonly: 1.03
-  Syntax::Highlight::Perl6: 0.02961
+  Syntax::Highlight::Perl6: 0.02962
   URI: 1.37
   perl: 5.010
 resources:
@@ -35,4 +35,4 @@ resources:
   homepage: http://padre.perlide.org/
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
-version: 0.014
+version: 0.015

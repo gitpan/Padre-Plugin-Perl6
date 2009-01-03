@@ -9,6 +9,8 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Padre/Document/Perl6.pm
 lib/Padre/Plugin/Perl6.pm
+lib/Padre/Task/p6tokens.pl
+lib/Padre/Task/Perl6.pm
 lib/Padre/Task/SyntaxChecker/Perl6.pm
 Makefile.PL
 MANIFEST			This list of files

@@ -13,7 +13,7 @@ use IO::File;
 use File::Temp;
 use IPC::Run;
 
-our $VERSION = '0.020';
+our $VERSION = '0.021';
 
 use URI::file;
 use Readonly;
@@ -37,16 +37,23 @@ sub menu_plugins {
     # Create a simple menu with a single About entry
     $self->{menu} = Wx::Menu->new;
 
+    # Perl 6 S29 documentation
+    Wx::Event::EVT_MENU(
+        $main_window,
+        $self->{menu}->Append( -1, "Show Perl 6 documentation\tF2", ),
+        sub { $self->show_perl6_doc; },
+    );
+
     # Manual Perl 6 syntax highlighting
     Wx::Event::EVT_MENU(
         $main_window,
-        $self->{menu}->Append( -1, "Manual Perl 6 syntax highlighting\tCtrl-R", ),
-        sub { $self->highlight(0); },
+        $self->{menu}->Append( -1, "Manual Perl 6 Syntax Highlighting\tCtrl-R", ),
+        sub { $self->highlight; },
     );
 
     # Toggle Auto Perl 6 syntax highlighting
     $self->{p6_highlight} = 
-        $self->{menu}->AppendCheckItem( -1, "Automatic Perl 6 syntax highlighting",);
+        $self->{menu}->AppendCheckItem( -1, "Automatic Perl 6 Syntax Highlighting",);
     Wx::Event::EVT_MENU(
         $main_window,
         $self->{p6_highlight},
@@ -57,7 +64,7 @@ sub menu_plugins {
 
     $self->{menu}->AppendSeparator;
 
-    # export into HTML
+    # Export into HTML
     Wx::Event::EVT_MENU(
         $main_window,
         $self->{menu}->Append( -1, 'Export Full HTML', ),
@@ -83,7 +90,7 @@ sub menu_plugins {
         sub { $self->show_about },
     );
 
-    # Return it and the label for our plugin
+    # Return our plugin with its label
     return ( $self->plugin_name => $self->{menu} );
 }
 
@@ -98,11 +105,99 @@ sub show_about {
     my $about = Wx::AboutDialogInfo->new;
     $about->SetName("Padre::Plugin::Perl6");
     $about->SetDescription(
-        "Perl6 syntax highlighting that is based on\nSyntax::Highlight::Perl6\n"
+        "Perl6 syntax highlighting that is based on\n" .
+        "Syntax::Highlight::Perl6\n"
     );
     $about->SetVersion($VERSION);
     Wx::AboutBox( $about );
     return;
+}
+
+#
+# Original code idea from masak++ (http://use.perl.org/~masak/journal/38212)
+#
+sub build_perl6_doc {
+    my $self = shift;
+    
+    # open the S29 file
+    my $S29 = IO::File->new(
+        Cwd::realpath(
+            File::Spec->join(File::Basename::dirname(__FILE__), '../Task/S29-Functions.pod'))) 
+                or croak "Cannot open $!";
+
+    # read until you find 'Function Packages'
+    until (<$S29> =~ /Function Packages/) {}
+
+    # parse the rest of S29 looking for Perl 6 function documentation
+    $self->{perl6_functions} = ();
+    my $function_name = undef;
+    while (my $line = <$S29>) {
+        if ($line =~ /^=(\S+) (.*)/x) {
+            if ($1 eq 'item') {
+                # Found Perl6 function name
+                $function_name = $2;
+                $function_name =~ s/^\s+//;
+            } else {
+                $function_name = undef;
+            }
+        } elsif($function_name) {
+            # Adding documentation to the function name
+            $self->{perl6_functions}{$function_name} .= $line;
+        }
+    }
+}
+
+sub show_perl6_doc {
+    my $self = shift;
+    
+    if(! $self->{perl6_functions}) {
+        # no Perl 6 function documentation in memory, then let us create it
+        $self->build_perl6_doc;
+    }
+
+    # find the word under the current cursor position
+    my $doc = Padre::Current->document;
+    if($doc) {
+        
+        my $main   = Padre->ide->wx->main_window;
+        
+        # make sure it is a Perl 6 document
+        if($doc->get_mimetype ne q{application/x-perl6}) {
+            Wx::MessageBox(
+                'Not a Perl 6 file',
+                'Operation cancelled',
+                Wx::wxOK,
+                $main,
+            );
+            return;
+        }
+
+        my $editor = $doc->editor;
+        my $lineno = $editor->GetCurrentLine();
+        my $line = $editor->GetLine($lineno);
+        my $current_pos = $editor->GetCurrentPos() - $editor->PositionFromLine($lineno);
+        my $current_word = '';
+        while( $line =~ m/\G.*?([[:alnum:]]+)/g ) {
+            if(pos($line) >= $current_pos) {
+                $current_word = $1;
+                last;
+            }
+        }        
+        if($current_word =~ /^.*?(\w+)/) {
+            my $function_name = $1;
+            say "Looking up: " . $function_name;
+            my $function_doc = $self->{perl6_functions}{$function_name};
+            if($function_doc) {
+                Wx::MessageBox(
+                    $function_doc,
+                    'S29-Functions.pod - ' . $function_name,
+                    Wx::wxOK,
+                    $main,
+                );
+            }
+        }
+        
+    }
 }
 
 sub toggle_highlight {

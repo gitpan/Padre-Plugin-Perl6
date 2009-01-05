@@ -128,9 +128,20 @@ sub _check_syntax_internals {
 sub keywords {
     my $self = shift;
     if (! defined $self->{keywords}) {
-        $self->{keywords} = YAML::Tiny::LoadFile(
-            Padre::Util::sharefile( 'languages', 'perl6', 'perl6.yml' )
-        );
+        #Get keywords from Plugin object
+        my $manager = Padre->ide->plugin_manager;
+        if($manager) {
+            my $plugin = $manager->plugins->{'Perl6'};
+            if($plugin) {
+                my %perl6_functions = %{$plugin->object->{perl6_functions}};
+                foreach my $function (keys %perl6_functions) {
+                    $self->{keywords}->{$function} = {
+                        'cmd' => $perl6_functions{$function},
+                        'exp' => '',
+                    };
+                }
+             }
+        }
     }
     return $self->{keywords};
 }

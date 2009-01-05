@@ -13,8 +13,9 @@ use IO::File;
 use File::Temp;
 use IPC::Run;
 
-our $VERSION = '0.021';
+our $VERSION = '0.022';
 
+use URI::Escape;
 use URI::file;
 use Readonly;
 
@@ -28,6 +29,12 @@ Readonly my $SNIPPET_HTML => 'snippet_html';
 
 sub padre_interfaces {
     return 'Padre::Plugin'         => 0.22,
+}
+
+sub plugin_enable {
+    my $self = shift;
+    $self->build_perl6_doc;
+    return 1;
 }
 
 sub menu_plugins {
@@ -145,22 +152,34 @@ sub build_perl6_doc {
             $self->{perl6_functions}{$function_name} .= $line;
         }
     }
+
+    # trim blank lines at the beginning and the end
+    foreach my $function_name (keys %{$self->{perl6_functions}}) {
+        my $docs = $self->{perl6_functions}{$function_name};
+        $docs =~ s/^(\s|\n)+//g;
+        $docs =~ s/(\s|\n)+$//g;
+        $self->{perl6_functions}{$function_name} = $docs;
+    }
+
 }
 
 sub show_perl6_doc {
     my $self = shift;
-    
+    my $main   = Padre->ide->wx->main_window;
+
     if(! $self->{perl6_functions}) {
-        # no Perl 6 function documentation in memory, then let us create it
-        $self->build_perl6_doc;
+        Wx::MessageBox(
+            'Perl6 S29 docs are not available',
+            'Error',
+            Wx::wxOK,
+            $main,
+        );
+        return;
     }
 
     # find the word under the current cursor position
     my $doc = Padre::Current->document;
     if($doc) {
-        
-        my $main   = Padre->ide->wx->main_window;
-        
         # make sure it is a Perl 6 document
         if($doc->get_mimetype ne q{application/x-perl6}) {
             Wx::MessageBox(
@@ -188,12 +207,10 @@ sub show_perl6_doc {
             say "Looking up: " . $function_name;
             my $function_doc = $self->{perl6_functions}{$function_name};
             if($function_doc) {
-                Wx::MessageBox(
-                    $function_doc,
-                    'S29-Functions.pod - ' . $function_name,
-                    Wx::wxOK,
-                    $main,
-                );
+                #launch default browser to see the S29 function documentation
+                Wx::LaunchDefaultBrowser(
+                    q{http://perlcabal.org/syn/S29.html#} . 
+                    URI::Escape::uri_escape_utf8($function_name));
             }
         }
         

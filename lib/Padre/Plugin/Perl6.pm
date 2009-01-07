@@ -11,9 +11,9 @@ use Carp;
 use feature qw(say switch);
 use IO::File;
 use File::Temp;
-use IPC::Run;
+use IPC::Run3;
 
-our $VERSION = '0.023';
+our $VERSION = '0.024';
 
 use URI::Escape;
 use URI::file;
@@ -33,7 +33,10 @@ sub padre_interfaces {
 
 sub plugin_enable {
     my $self = shift;
-    $self->build_perl6_doc;
+    eval {
+        $self->build_perl6_doc;
+    };
+    warn $@ if $@;
     return 1;
 }
 
@@ -44,23 +47,25 @@ sub menu_plugins {
     # Create a simple menu with a single About entry
     $self->{menu} = Wx::Menu->new;
 
-    # Perl 6 S29 documentation
+    # Perl6 S29 documentation
     Wx::Event::EVT_MENU(
         $main_window,
-        $self->{menu}->Append( -1, "Show Perl 6 documentation\tF2", ),
+        $self->{menu}->Append( -1, "Show Perl6 Help\tF2", ),
         sub { $self->show_perl6_doc; },
     );
 
-    # Manual Perl 6 syntax highlighting
+    $self->{menu}->AppendSeparator;
+
+    # Manual Perl6 syntax highlighting
     Wx::Event::EVT_MENU(
         $main_window,
-        $self->{menu}->Append( -1, "Manual Perl 6 Syntax Highlighting\tCtrl-R", ),
+        $self->{menu}->Append( -1, "Refresh Perl6 Coloring\tCtrl-R", ),
         sub { $self->highlight; },
     );
 
-    # Toggle Auto Perl 6 syntax highlighting
+    # Toggle Auto Perl6 syntax highlighting
     $self->{p6_highlight} = 
-        $self->{menu}->AppendCheckItem( -1, "Automatic Perl 6 Syntax Highlighting",);
+        $self->{menu}->AppendCheckItem( -1, "Toggle Auto Perl6 Coloring",);
     Wx::Event::EVT_MENU(
         $main_window,
         $self->{p6_highlight},
@@ -202,15 +207,14 @@ sub build_perl6_doc {
     my $self = shift;
     
     # open the S29 file
-    my $S29 = IO::File->new(
-        Cwd::realpath(
-            File::Spec->join(File::Basename::dirname(__FILE__), '../Task/S29-Functions.pod'))) 
-                or croak "Cannot open $!";
+    my $s29_file = File::Spec->join(File::Basename::dirname(__FILE__), '../Task/S29-Functions.pod');
+    my $S29 = IO::File->new(Cwd::realpath($s29_file)) 
+                or croak "Cannot open '$s29_file' $!";
 
     # read until you find 'Function Packages'
     until (<$S29> =~ /Function Packages/) {}
 
-    # parse the rest of S29 looking for Perl 6 function documentation
+    # parse the rest of S29 looking for Perl6 function documentation
     $self->{perl6_functions} = ();
     my $function_name = undef;
     while (my $line = <$S29>) {
@@ -255,10 +259,10 @@ sub show_perl6_doc {
     # find the word under the current cursor position
     my $doc = Padre::Current->document;
     if($doc) {
-        # make sure it is a Perl 6 document
+        # make sure it is a Perl6 document
         if($doc->get_mimetype ne q{application/x-perl6}) {
             Wx::MessageBox(
-                'Not a Perl 6 file',
+                'Not a Perl6 file',
                 'Operation cancelled',
                 Wx::wxOK,
                 $main,
@@ -344,7 +348,7 @@ sub export_html {
     }
     if($doc->get_mimetype ne q{application/x-perl6}) {
         Wx::MessageBox(
-            'Not a Perl 6 file',
+            'Not a Perl6 file',
             'Export cancelled',
             Wx::wxOK,
             $main,
@@ -355,23 +359,22 @@ sub export_html {
     my $text = $self->text_with_one_nl($doc);
 
     # construct the command
-    my @cmd = ( 'hilitep6' );
+    my @cmd = ( Padre::Util::WIN32 ? 'hilitep6.bat' : 'hilitep6' );
 
     my $html;
-    eval {
-        given($type) {
-            when ($FULL_HTML) { push @cmd, '--full-html=-'; }
-            when ($SIMPLE_HTML) { push @cmd, '--simple-html=-'; }
-            when ($SNIPPET_HTML) { push @cmd, '--snippet-html=-' }
-            default {
-                croak "'$type' should full_html, simple_html or snippet_html";
-            }
+    given($type) {
+        when ($FULL_HTML) { push @cmd, '--full-html=-'; }
+        when ($SIMPLE_HTML) { push @cmd, '--simple-html=-'; }
+        when ($SNIPPET_HTML) { push @cmd, '--snippet-html=-' }
+        default {
+            # default is full html
+            push @cmd, '--full-html=-';
         }
-        1;
-    };
+    }
 
-    my ($in, $out, $err) = ($text,'',undef);
-    my $h = IPC::Run::run(\@cmd, \$in, \$out, \$err);
+    my ($out, $err) = ('',undef);
+    run3 \@cmd, \$text, \$out, \$err, { 'binmode_stdin' => ':utf8' } ; 
+    
     if($err) {
         Wx::MessageBox(
             qq{STD.pm Parsing Error:\n$err},

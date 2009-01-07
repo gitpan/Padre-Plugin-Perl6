@@ -26,7 +26,7 @@ no_index:
     - inc
     - t
 requires:
-  IPC::Run: 0.82
+  IPC::Run3: 0.042
   Padre: 0.24
   Readonly: 1.03
   Syntax::Highlight::Perl6: 0.0297
@@ -37,4 +37,4 @@ resources:
   homepage: http://padre.perlide.org/
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
-version: 0.023
+version: 0.024

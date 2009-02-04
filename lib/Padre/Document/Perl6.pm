@@ -9,7 +9,7 @@ use Padre::Document ();
 use Padre::Task::Perl6 ();
 use Readonly;
 
-our $VERSION = '0.24';
+our $VERSION = '0.26';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -29,20 +29,19 @@ sub text_with_one_nl {
     return $text;
 }
 
-# Naive way to parse and colorize perl6 files
+# a SLOW WAY to parse and colorize perl6 files
 sub colorize {
-    my ($doc, $first) = @_;
+    my $doc = shift;
 
-    my $config = Padre->ide->config;
+    my $config = Padre::Plugin::Perl6::plugin_config;
     if($config->{p6_highlight} || $doc->{force_p6_highlight}) {
         # Create a coloring task and hand off to the task manager
         my $task = Padre::Task::Perl6->new(
-            text => $doc->text_with_one_nl, 
-            editor => $doc->editor, 
+            text => $doc->text_with_one_nl,
+            editor => $doc->editor,
             document => $doc);
         $task->schedule();
     }
-    
 }
 
 sub get_command {

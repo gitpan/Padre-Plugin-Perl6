@@ -7,8 +7,10 @@ build_requires:
   Test::More: 0.47
   Test::NeedsDisplay: 1.05
   Test::NoWarnings: 0.084
+configure_requires:
+  ExtUtils::MakeMaker: 6.50
 distribution_type: module
-generated_by: 'Module::Install version 0.77'
+generated_by: 'Module::Install version 0.81'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -16,16 +18,10 @@ meta-spec:
 name: Padre-Plugin-Perl6
 no_index:
   directory:
-    -
-      - t
-      - xt
-      - eg
-      - share
-      - inc
-      - privinc
     - inc
     - t
 requires:
+  File::Which: 0.05
   IPC::Run3: 0.042
   Padre: 0.25
   Readonly: 1.03
@@ -37,4 +33,4 @@ resources:
   homepage: http://padre.perlide.org/
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
-version: 0.026
+version: 0.27

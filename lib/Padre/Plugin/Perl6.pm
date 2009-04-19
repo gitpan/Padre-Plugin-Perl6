@@ -1,19 +1,17 @@
-# Copyright 2008 Gabor Szabo.
-# LICENSE
-# This program is free software; you can redistribute it and/or
-# modify it under the same terms as Perl 5 itself.
 package Padre::Plugin::Perl6;
 
 use 5.010;
 use strict;
 use warnings;
+
+use feature qw(say);
+
 use Carp;
-use feature qw(say switch);
 use IO::File;
 use File::Temp;
 
 # exports and version
-our $VERSION = '0.026';
+our $VERSION = '0.27';
 our @EXPORT_OK = qw(plugin_config);
 
 use IPC::Run3;
@@ -79,13 +77,13 @@ sub menu_plugins {
     # Manual Perl6 syntax highlighting
     Wx::Event::EVT_MENU(
         $main_window,
-        $self->{menu}->Append( -1, "Refresh Perl6 Coloring\tF6", ),
+        $self->{menu}->Append( -1, "Refresh Coloring\tF6", ),
         sub { $self->highlight; },
     );
 
     # Toggle Auto Perl6 syntax highlighting
     $self->{p6_highlight} =
-        $self->{menu}->AppendCheckItem( -1, "Toggle Auto Perl6 Coloring",);
+        $self->{menu}->AppendCheckItem( -1, "Enable Auto Coloring",);
     Wx::Event::EVT_MENU(
         $main_window,
         $self->{p6_highlight},
@@ -455,11 +453,12 @@ After installation when you run Padre there should be a menu option Plugins/Perl
 
 Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
 
-Gabor Szabo L<http://www.szabgab.com/>
+Gabor Szabo L<http://szabgab.com/>
 
 =head1 COPYRIGHT
 
-Copyright 2008 Gabor Szabo. L<http://www.szabgab.com/>
+Copyright 2008-2009 Gabor Szabo. L<http://szabgab.com/> and
+Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
 
 =head1 LICENSE
 

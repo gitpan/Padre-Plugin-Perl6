@@ -3,13 +3,14 @@ package Padre::Document::Perl6;
 use 5.010;
 use strict;
 use warnings;
-use feature qw(say);
+#use feature qw(say);
 use English '-no_match_vars';  # Avoids regex performance penalty
 use Padre::Document ();
 use Padre::Task::Perl6 ();
 use Readonly;
+use File::Which;
 
-our $VERSION = '0.26';
+our $VERSION = '0.27';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -49,24 +50,16 @@ sub get_command {
 
     my $filename = $self->filename;
 
-    if (not $ENV{PARROT_PATH}) {
-        #die to display a message box...
-        die "PARROT_PATH is not defined. Need to point to trunk of Parrot SVN checkout.\n";
-    }
-    my $parrot_exe = ($^O eq 'MSWin32') ? 'parrot.exe' : 'parrot';
-    my $parrot = File::Spec->catfile($ENV{PARROT_PATH}, $parrot_exe);
-    if (not -x $parrot) {
-        #die to display a message box...
-        die "$parrot is not an executable.\n";
-    }
-    my $rakudo = File::Spec->catfile($ENV{PARROT_PATH}, 'languages', 'perl6', 'perl6.pbc');
-    if (not -e $rakudo) {
-        #die to display a message box...
-        die "Cannot find Rakudo ($rakudo)\n";
-    }
-
-    return qq{"$parrot" "$rakudo" "$filename"};
-
+	my $exe_name = $^O eq 'MSWin32' ? 'perl6.exe' : 'perl6';
+	my $perl6 = File::Which::which($exe_name);
+	if (not $perl6) {
+		if (not $ENV{RAKUDO_DIR}) {
+			my $main = Padre->ide->wx->main;
+			$main->error("Either $exe_name needs to be in the PATH or RAKUDO_DIR must point to the directory of the Rakudo checkout.");
+		}
+		$perl6 = File::Spec->catfile($ENV{RAKUDO_DIR}, $exe_name);
+	}
+    return qq{"$perl6" "$filename"};
 }
 
 # Checks the syntax of a Perl document.

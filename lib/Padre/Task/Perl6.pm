@@ -11,7 +11,8 @@ use Storable;
 use File::Basename;
 use File::Spec;
 use Cwd;
-
+ 
+our $VERSION = '0.27';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -133,7 +134,12 @@ sub run {
         }
         $self->{issues} = $issues;
     } else {
-        $self->{tokens} = Storable::thaw($out);
+		eval {
+        	$self->{tokens} = Storable::thaw($out);
+		};
+		if ($@) {
+			warn "Exception: $@";
+		}
     }
 
     return 1;

@@ -1,5 +1,9 @@
 Changes
 
+0.29 2009.4.24
+	- Initial Working Perl 6 Outline view
+	- Depends on Syntax::Highlight::Perl6 0.043 which has line number information	
+
 0.28 2009.4.20
     - Depends on Syntax::Highlight::Perl6 0.041 which has the newest STD with CORE.pad
 

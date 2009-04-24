@@ -12,7 +12,7 @@ use File::Basename;
 use File::Spec;
 use Cwd;
  
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -86,9 +86,11 @@ sub finish {
                 $editor->SetStyling($len, $color);
             }
         }
+		$doc->{tokens} = $self->{tokens};
         $doc->{issues} = [];
     } elsif($self->{issues}) {
         # pass errors/warnings to document...
+		$doc->{tokens} = [];
         $doc->{issues} = $self->{issues};
     }
 

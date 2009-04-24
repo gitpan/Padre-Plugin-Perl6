@@ -3,14 +3,13 @@ package Padre::Document::Perl6;
 use 5.010;
 use strict;
 use warnings;
-#use feature qw(say);
 use English '-no_match_vars';  # Avoids regex performance penalty
 use Padre::Document ();
 use Padre::Task::Perl6 ();
 use Readonly;
 use File::Which;
 
-our $VERSION = '0.28';
+our $VERSION = '0.29';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -108,11 +107,11 @@ sub colorize {
     # temporary overlay using the parse tree given by parrot
     # TODO: let the user select which one to use
     # TODO: but the parrot parser in the background
-	my $perl6 = $self->get_perl6;
-	if ($perl6) {
-		$self->_parrot_color($perl6);
-		return;
-	}
+	#my $perl6 = $self->get_perl6;
+	#if ($perl6) {
+	#	$self->_parrot_color($perl6);
+	#	return;
+	#}
 
     my $config = Padre::Plugin::Perl6::plugin_config;
     if($config->{p6_highlight} || $self->{force_p6_highlight}) {
@@ -314,6 +313,44 @@ sub event_on_right_down {
 	return;
 }
 
+sub get_outline {
+	my $self = shift;
+	my %args = @_;
+
+	my $tokens = $self->{tokens};
+	
+	if(not defined $tokens) {
+		return;
+	}
+	
+	my $text = $self->text_get;
+	unless ( defined $text and $text ne '' ) {
+		return [];
+	}
+
+	# Do we really need an update?
+	require Digest::MD5;
+	my $md5 = Digest::MD5::md5_hex( Encode::encode_utf8($text) );
+	unless ( $args{force} ) {
+		if ( defined( $self->{last_outline_md5} )
+			and $self->{last_outline_md5} eq $md5 )
+		{
+			return;
+		}
+	}
+	$self->{last_outline_md5} = $md5;
+
+	require Padre::Task::Outline::Perl6;
+	my $task = Padre::Task::Outline::Perl6->new(
+		editor => $self->editor,
+		text   => $text,
+		tokens => $tokens,
+	);
+
+	# asynchronous execution (see on_finish hook)
+	$task->schedule;
+	return;
+}
 
 1;
 

@@ -9,6 +9,7 @@ inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Padre/Document/Perl6.pm
 lib/Padre/Plugin/Perl6.pm
+lib/Padre/Task/Outline/Perl6.pm
 lib/Padre/Task/p6tokens.pl
 lib/Padre/Task/Perl6.pm
 lib/Padre/Task/S29-functions.pod

@@ -3,7 +3,7 @@ package Padre::Task::Outline::Perl6;
 use strict;
 use warnings;
 
-our $VERSION = '0.32';
+our $VERSION = '0.33';
 
 use base 'Padre::Task::Outline';
 
@@ -51,71 +51,90 @@ sub _get_outline {
 	
 	if($self->{tokens}) {
 		my $cur_pkg = {};
-		my $first_time = 1;
 		my @tokens = @{$self->{tokens}};
+		my $symbol_type = 'package';
+		my $symbol_name = '';
+		my $symbol_line = -1;
+		my $symbol_context = '';
+		my $context = 'GLOBAL';
 		for my $htoken (@tokens) {
 			my %token = %{$htoken};
 			my $tree = $token{tree};
 			if($tree) {
+				my $buffer = $token{buffer};
+				my $lineno = $token{lineno};
 				if($tree =~ /package_declarator__S_\d+(class|grammar|module|package|role) package_def.+def_module_name/) {
 					# (classes, grammars, modules, packages, roles) or main are always parent nodes
-					my $type = $1;
-					if($first_time) {
-						if ( not $cur_pkg->{name} ) {
-							$cur_pkg->{name} = 'GLOBAL';
-						}
-						$first_time = 0;
-					}
-					push @{$outline}, $cur_pkg;
-					$cur_pkg = {};
-					$cur_pkg->{name} = $token{buffer} . " ($type)";
-					$cur_pkg->{line} = $token{lineno};
+					$symbol_type = $1;
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
 				} elsif($tree =~ /(package_declarator__S_\d+require module_name)|(statement_control__S_\d+use module_name)/) {
 					# require/use a module
-					push @{ $cur_pkg->{modules} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} elsif($tree =~ /routine_declarator__S_\d+sub routine_def (deflongname)/) {
+					$symbol_type = "modules";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} elsif($tree =~ /routine_declarator__S_\d+sub routine_def deflongname/) {
 					# a subroutine
-					push @{ $cur_pkg->{subroutines} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} elsif($tree =~ /routine_declarator__\w+_\d+method method_def (longname)/) {
+					$symbol_type = "subroutines";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} elsif($tree =~ /routine_declarator__\w+_\d+method method_def longname/) {
 					# a method
-					push @{ $cur_pkg->{methods} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} elsif($tree =~ /routine_declarator__\w+_\d+submethod method_def (longname)/) {
+					$symbol_type = "methods";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} elsif($tree =~ /routine_declarator__\w+_\d+submethod method_def longname/) {
 					# a submethod
-					push @{ $cur_pkg->{submethods} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} elsif($tree =~ /routine_declarator__\w+_\d+macro macro_def (deflongname)/) {
+					$symbol_type = "submethods";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} elsif($tree =~ /routine_declarator__\w+_\d+macro macro_def deflongname/) {
 					# a macro
-					push @{ $cur_pkg->{macros} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} elsif($tree =~ /regex_declarator__\w+_\d+(regex|token|rule) (regex_def) (deflongname)/) {
+					$symbol_type = "macros";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} elsif($tree =~ /regex_declarator__\w+_\d+(regex|token|rule) regex_def deflongname/) {
 					# a regex, token or rule declaration
-					push @{ $cur_pkg->{regexes} }, { 
-						name => $token{buffer}, 
-						line => $token{lineno} 
-					};
-				} 
+					$symbol_type = "regexes";
+					$symbol_name .= $buffer;
+					$symbol_line = $lineno;
+				} else {
+					if($symbol_name ne '') {
+						if( $symbol_type eq 'class' || 
+							$symbol_type eq 'grammar' || 
+							$symbol_type eq 'module' ||
+							$symbol_type eq 'package' ||
+							$symbol_type eq 'role') 
+						{
+							$context = $symbol_name;
+							if(not $cur_pkg->{name}) {
+								$cur_pkg->{name} = 'GLOBAL';
+							}
+							push @{$outline}, $cur_pkg;
+							$cur_pkg = {};
+							$cur_pkg->{name} = $symbol_name . " ($symbol_type)";
+							$cur_pkg->{line} = $symbol_line;
+						} else {
+							push @{ $cur_pkg->{$symbol_type} }, {
+								name => $symbol_name, 
+								line=>$symbol_line,
+							}; 
+						}
+						$symbol_type = '';
+						$symbol_name = '';
+						$symbol_line = -1;
+					}
+				}
 			}
 		}
-
-		if ( not $cur_pkg->{name} ) {
+		
+		if(not $cur_pkg->{name}) {
 			$cur_pkg->{name} = 'GLOBAL';
 		}
 		push @{$outline}, $cur_pkg;
-	}
 
+	}
+	
 	$self->{outline} = $outline;
 	return;
 }

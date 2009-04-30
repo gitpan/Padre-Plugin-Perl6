@@ -12,7 +12,7 @@ use File::Basename;
 use File::Spec;
 use Cwd;
  
-our $VERSION = '0.34';
+our $VERSION = '0.35';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -93,6 +93,9 @@ sub finish {
 		$doc->{tokens} = [];
         $doc->{issues} = $self->{issues};
     }
+	
+	$doc->check_syntax_in_background(force => 1);
+	$doc->get_outline(force => 1);
 
     # finished here
     $thread_running = 0;

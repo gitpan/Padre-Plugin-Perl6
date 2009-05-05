@@ -9,10 +9,9 @@ all_from       'lib/Padre/Plugin/Perl6.pm';
 requires       'perl'                    => '5.010';
 
 requires       'Padre'                    => '0.33';
-requires       'Syntax::Highlight::Perl6' => '0.48';
+requires       'Syntax::Highlight::Perl6' => '0.50';
 requires       'URI'                      => '1.37';
-requires       'Readonly'                 => '1.03';
-requires       'IPC::Run3'                => '0.042';
+requires       'Win32::Process'           => '0.14' if win32;
 requires       'File::Which'              => '0.05';
 
 test_requires  'Test::More'              => '0.86';

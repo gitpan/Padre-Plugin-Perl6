@@ -3,7 +3,7 @@ package Padre::Task::Outline::Perl6;
 use strict;
 use warnings;
 
-our $VERSION = '0.35';
+our $VERSION = '0.36';
 
 use base 'Padre::Task::Outline';
 
@@ -84,6 +84,9 @@ sub _get_outline {
 					if($buffer eq '!') {
 						# private method...
 						$symbol_suffix = " (private)";
+					} elsif($buffer eq '^') {
+						# class or .HOW method
+						$symbol_suffix = " (class)";
 					}
 					$symbol_type = "methods";
 					$symbol_name .= $buffer;

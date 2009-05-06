@@ -6,10 +6,10 @@ inc/Module/Install/Fetch.pm
 inc/Module/Install/Makefile.pm
 inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
-inc/Module/Install/With.pm
 inc/Module/Install/WriteAll.pm
 lib/Padre/Document/Perl6.pm
 lib/Padre/Plugin/Perl6.pm
+lib/Padre/Plugin/Perl6/Preferences.pm
 lib/Padre/Task/Outline/Perl6.pm
 lib/Padre/Task/p6tokens.pl
 lib/Padre/Task/Perl6.pm

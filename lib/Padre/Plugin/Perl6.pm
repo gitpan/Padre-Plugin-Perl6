@@ -8,7 +8,7 @@ use Carp;
 use IO::File;
 
 # exports and version
-our $VERSION = '0.36';
+our $VERSION = '0.37';
 our @EXPORT_OK = qw(plugin_config);
 
 use URI::Escape;
@@ -116,6 +116,15 @@ sub menu_plugins {
 
     $self->{menu}->AppendSeparator;
 
+    # Preferences
+    Wx::Event::EVT_MENU(
+        $main_window,
+        $self->{menu}->Append( -1, "Preferences", ),
+        sub { $self->show_preferences; },
+    );
+
+    $self->{menu}->AppendSeparator;
+
     # the famous about menu item...
     Wx::Event::EVT_MENU(
         $main_window,
@@ -131,6 +140,13 @@ sub registered_documents {
     return 'application/x-perl6'    => 'Padre::Document::Perl6',
 }
 
+sub show_preferences {
+    my $self = shift;
+    
+    require Padre::Plugin::Perl6::Preferences;
+    my $prefs  = Padre::Plugin::Perl6::Preferences->new($self);
+    $prefs->Show;
+}
 
 sub show_about {
     my ($main) = @_;

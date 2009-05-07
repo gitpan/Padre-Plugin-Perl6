@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Padre::Task';
 
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -14,6 +14,9 @@ our $thread_running = 0;
 sub prepare {
     my $self = shift;
 
+	# it is not running yet.
+	$self->{broken} = 0;
+	
     # put editor into main-thread-only storage
     $self->{main_thread_only} ||= {};
     my $document = $self->{document} || $self->{main_thread_only}{document};
@@ -25,10 +28,17 @@ sub prepare {
 
     # assign a place in the work queue
     if($thread_running) {
+		# single thread instance at a time please. aborting...
+		$self->{broken} = 1;
         return "break";
     }
     $thread_running = 1;
     return 1;
+}
+
+sub is_broken {
+	my $self = shift;
+	return $self->{broken};
 }
 
 my %colors = (
@@ -131,20 +141,21 @@ sub run {
 	# 1. popping out a command line on each run...
 	# 2. STD.pm uses Storable 
 	# 3. Padre TaskManager does not like tasks that do Storable operations...
-	my $is_win32 = ($^O =~ /MSWin/);
-	if($is_win32) {
-		use Win32;
-		use Win32::Process;
+	if($^O =~ /MSWin/) {
+		# on win32 platforms, we need to use this to prevent command line popups when using wperl.exe
+		require Win32;
+		require Win32::Process;
 
 		sub print_error {
 		   print Win32::FormatMessage(Win32::GetLastError());
 		}
 
 		my $p_obj;
-		Win32::Process::Create($p_obj, Padre->perl_interpreter, $cmd, 0, DETACHED_PROCESS, '.') 
+		Win32::Process::Create($p_obj, Padre->perl_interpreter, $cmd, 0, Win32::Process::DETACHED_PROCESS(), '.') 
 			or warn &print_error;
-		$p_obj->Wait(INFINITE);
+		$p_obj->Wait(Win32::Process::INFINITE());
 	} else {
+		# On other platforms, we will simply use the perl way of calling a command
 		`$cmd`;
 	}
 		

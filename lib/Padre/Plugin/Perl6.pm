@@ -8,7 +8,7 @@ use Carp;
 use IO::File;
 
 # exports and version
-our $VERSION = '0.37';
+our $VERSION = '0.38';
 our @EXPORT_OK = qw(plugin_config);
 
 use URI::Escape;
@@ -151,11 +151,13 @@ sub show_preferences {
 sub show_about {
     my ($main) = @_;
 
+	require Syntax::Highlight::Perl6;
+	
     my $about = Wx::AboutDialogInfo->new;
     $about->SetName("Padre::Plugin::Perl6");
     $about->SetDescription(
         "Perl6 syntax highlighting that is based on\n" .
-        "Syntax::Highlight::Perl6\n"
+        "Syntax::Highlight::Perl6 v" . $Syntax::Highlight::Perl6::VERSION . "\n"
     );
     $about->SetVersion($VERSION);
     Wx::AboutBox( $about );

@@ -8,10 +8,11 @@ use Class::XSAccessor accessors => {
 	_sizer       => '_sizer',        # window sizer
 };
 
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 
 use Padre::Current;
 use Padre::Wx ();
+use Padre::Util   ('_T');
 
 use base 'Wx::Dialog';
 
@@ -25,7 +26,7 @@ sub new {
 	my $self = $class->SUPER::new(
 		Padre::Current->main,
 		-1,
-		'Perl6 preferences',
+		_T('Perl6 preferences'),
 		Wx::wxDefaultPosition,
 		Wx::wxDefaultSize,
 		Wx::wxDEFAULT_FRAME_STYLE|Wx::wxTAB_TRAVERSAL,
@@ -118,7 +119,7 @@ sub _create_controls {
 
 	my @choices = ['S:H:P6/STD','Rakudo/PGE'];
 	# syntax highligher selection
-	my $selector_label = Wx::StaticText->new( $self, -1, 'Syntax Highlighter:' );
+	my $selector_label = Wx::StaticText->new( $self, -1, _T('Syntax Highlighter:') );
 	my $selector_list = Wx::ListBox->new(
 		$self,
 		-1,
@@ -149,7 +150,7 @@ sub _create_controls {
 		$self,
 		-1,
 		$mildew_dir,
-		'Pick mildew Directory',
+		_T('Pick mildew Directory'),
 		Wx::wxDefaultPosition,
 		Wx::wxDefaultSize,
 	);
@@ -176,7 +177,7 @@ sub _create_controls {
 		$self,
 		-1,
 		$rakudo_dir,
-		'Pick rakudo Directory',
+		_T('Pick rakudo Directory'),
 		Wx::wxDefaultPosition,
 		Wx::wxDefaultSize,
 	);

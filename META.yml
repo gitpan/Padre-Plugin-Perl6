@@ -1,35 +1,45 @@
 ---
-abstract: 'Padre plugin for Perl6'
+name: Padre-Plugin-Perl6
+version: 0.40
 author:
-  - 'Gabor Szabo'
+  - Ahmad M. Zawawi and Gabor Szabo
+abstract: Padre plugin for Perl6
+license: perl
+resources:
+  homepage: http://padre.perlide.org/
+  license: http://dev.perl.org/licenses/
+  repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/
+requires:
+  File::Which: 0.05
+  Padre: 0.33
+  Syntax::Highlight::Perl6: 0.57
+  URI: 1.37
+  perl: 5.010
 build_requires:
-  ExtUtils::MakeMaker: 6.42
   Test::Exception: 0.27
   Test::More: 0.86
   Test::NeedsDisplay: 1.05
   Test::NoWarnings: 0.084
-configure_requires:
-  ExtUtils::MakeMaker: 6.42
-distribution_type: module
-generated_by: 'Module::Install version 0.84'
-license: perl
+provides:
+  Padre::Document::Perl6:
+    file: lib/Padre/Document/Perl6.pm
+    version: 0.40
+  Padre::Plugin::Perl6:
+    file: lib/Padre/Plugin/Perl6.pm
+    version: 0.40
+  Padre::Plugin::Perl6::Preferences:
+    file: lib/Padre/Plugin/Perl6/Preferences.pm
+    version: 0.40
+  Padre::Task::Outline::Perl6:
+    file: lib/Padre/Task/Outline/Perl6.pm
+    version: 0.40
+  Padre::Task::Perl6:
+    file: lib/Padre/Task/Perl6.pm
+    version: 0.40
+  Padre::Task::SyntaxChecker::Perl6:
+    file: lib/Padre/Task/SyntaxChecker/Perl6.pm
+    version: 0.40
+generated_by: Module::Build version 0.3
 meta-spec:
-  url: http://module-build.sourceforge.net/META-spec-v1.4.html
-  version: 1.4
-name: Padre-Plugin-Perl6
-no_index:
-  directory:
-    - inc
-    - t
-requires:
-  File::Which: 0.05
-  Padre: 0.33
-  Syntax::Highlight::Perl6: 0.54
-  URI: 1.37
-  perl: 5.010
-resources:
-  bugtracker: http://padre.perlide.org/
-  homepage: http://padre.perlide.org/
-  license: http://dev.perl.org/licenses/
-  repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6
-version: 0.39
+  url: http://module-build.sourceforge.net/META-spec-v1.2.html
+  version: 1.2

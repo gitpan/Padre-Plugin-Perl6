@@ -6,7 +6,7 @@ use warnings;
 use Padre::Document ();
 use Padre::Task::Perl6 ();
 
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -114,7 +114,7 @@ sub colorize {
 	#	return;
 	#}
 
-	my $config = Padre::Plugin::Perl6::plugin_config;
+	my $config = Padre::Plugin::Perl6::plugin_config();
 	if($config->{p6_highlight} || $self->{force_p6_highlight}) {
 	
 		unless($COLORIZE_TIMER) {
@@ -331,7 +331,7 @@ sub event_on_right_down {
 #				},
 #			);
 	foreach my $thing (@things) {
-		$menu->Append( -1, Wx::gettext("$thing->{str} is Perl 6 $thing->{type} ") );
+		$menu->Append( -1, sprintf( Wx::gettext("%s is Perl 6 %s "), $thing->{str}, $thing->{type} ) );
 	}
 	return;
 }

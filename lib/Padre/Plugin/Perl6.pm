@@ -7,10 +7,11 @@ use warnings;
 use Carp;
 
 # exports and version
-our $VERSION = '0.39';
+our $VERSION = '0.40';
 our @EXPORT_OK = qw(plugin_config);
 
 use Padre::Wx ();
+use Padre::Util   ('_T');
 use base 'Padre::Plugin';
 
 # constants for html exporting
@@ -25,8 +26,18 @@ sub plugin_config {
 	return $config;
 }
 
+# private subroutine to return the current share directory location
+sub _sharedir {
+	return Cwd::realpath(File::Spec->join(File::Basename::dirname(__FILE__),'Perl6/share'));
+}
+
+# directory where to find the translations
+sub plugin_locale_directory {
+	return File::Spec->catdir( _sharedir(), 'locale' );
+}
+
 sub padre_interfaces {
-	return 'Padre::Plugin'         => 0.26,
+	return 'Padre::Plugin' => 0.26,
 }
 
 # called when the plugin is enabled
@@ -59,7 +70,7 @@ sub menu_plugins {
 	# Perl6 S29 documentation
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, "Show Perl6 Help\tF2", ),
+		$self->{menu}->Append( -1, _T("Show Perl6 Help\tF2"), ),
 		sub { $self->show_perl6_doc; },
 	);
 
@@ -74,7 +85,7 @@ sub menu_plugins {
 
 	# Toggle Auto Perl6 syntax highlighting
 	$self->{p6_highlight} =
-		$self->{menu}->AppendCheckItem( -1, "Enable Auto Coloring",);
+		$self->{menu}->AppendCheckItem( -1, _T("Enable Auto Coloring"),);
 	Wx::Event::EVT_MENU(
 		$main_window,
 		$self->{p6_highlight},
@@ -87,17 +98,17 @@ sub menu_plugins {
 	# Export into HTML
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, 'Export Full HTML', ),
+		$self->{menu}->Append( -1, _T("Export Full HTML"), ),
 		sub { $self->export_html($FULL_HTML); },
 	);
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, 'Export Simple HTML', ),
+		$self->{menu}->Append( -1, _T("Export Simple HTML"), ),
 		sub { $self->export_html($SIMPLE_HTML); },
 	);
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, 'Export Snippet HTML', ),
+		$self->{menu}->Append( -1, _T("Export Snippet HTML"), ),
 		sub { $self->export_html($SNIPPET_HTML); },
 	);
 
@@ -106,7 +117,7 @@ sub menu_plugins {
 	# Cleanup STD.pm lex cache
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, "Cleanup STD.pm Lex Cache", ),
+		$self->{menu}->Append( -1, _T("Cleanup STD.pm Lex Cache"), ),
 		sub { $self->cleanup_std_lex_cache; },
 	);
 
@@ -115,7 +126,7 @@ sub menu_plugins {
 	# Preferences
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, "Preferences", ),
+		$self->{menu}->Append( -1, _T("Preferences"), ),
 		sub { $self->show_preferences; },
 	);
 
@@ -124,7 +135,7 @@ sub menu_plugins {
 	# the famous about menu item...
 	Wx::Event::EVT_MENU(
 		$main_window,
-		$self->{menu}->Append( -1, 'About', ),
+		$self->{menu}->Append( -1, _T("About"), ),
 		sub { $self->show_about },
 	);
 
@@ -171,7 +182,7 @@ sub cleanup_std_lex_cache {
 	my $LEX_STD_DIR = 'lex/STD';
 	if(! -d $LEX_STD_DIR) {
 		Wx::MessageBox(
-			'Cannot find STD.pm lex cache',
+			_T("Cannot find STD.pm lex cache"),
 			'Error',
 			Wx::wxOK,
 			$main,

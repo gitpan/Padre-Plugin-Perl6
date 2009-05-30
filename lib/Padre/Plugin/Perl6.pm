@@ -3,16 +3,14 @@ package Padre::Plugin::Perl6;
 use 5.010;
 use strict;
 use warnings;
-
 use Carp;
+use Padre::Wx   ();
+use Padre::Util ('_T');
+use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION = '0.40';
+our $VERSION   = '0.41';
 our @EXPORT_OK = qw(plugin_config);
-
-use Padre::Wx ();
-use Padre::Util   ('_T');
-use base 'Padre::Plugin';
 
 # constants for html exporting
 my $FULL_HTML    = 'full_html';
@@ -28,7 +26,14 @@ sub plugin_config {
 
 # private subroutine to return the current share directory location
 sub _sharedir {
-	return Cwd::realpath(File::Spec->join(File::Basename::dirname(__FILE__),'Perl6/share'));
+	return Cwd::realpath(
+		File::Spec->join(File::Basename::dirname(__FILE__),'Perl6/share')
+	);
+}
+
+# Returns the plugin name to Padre
+sub plugin_name {
+	return _T("Perl 6");
 }
 
 # directory where to find the translations
@@ -37,7 +42,16 @@ sub plugin_locale_directory {
 }
 
 sub padre_interfaces {
-	return 'Padre::Plugin' => 0.26,
+	'Padre::Plugin' => 0.36,
+}
+
+# plugin icon
+sub plugin_icon {
+    # find resource path
+    my $iconpath = File::Spec->catfile( _sharedir(), 'icons', 'camelia.png');
+
+    # create and return icon
+    return Wx::Bitmap->new( $iconpath, Wx::wxBITMAP_TYPE_PNG );
 }
 
 # called when the plugin is enabled
@@ -61,16 +75,16 @@ sub plugin_enable {
 }
 
 sub menu_plugins {
-	my $self        = shift;
-	my $main_window = shift;
+	my $self = shift;
+	my $main = shift;
 
 	# Create a simple menu with a single About entry
 	$self->{menu} = Wx::Menu->new;
 
 	# Perl6 S29 documentation
 	Wx::Event::EVT_MENU(
-		$main_window,
-		$self->{menu}->Append( -1, _T("Show Perl6 Help\tF2"), ),
+		$main,
+		$self->{menu}->Append( -1, _T("Show Perl 6 Help\tF2"), ),
 		sub { $self->show_perl6_doc; },
 	);
 
@@ -78,8 +92,8 @@ sub menu_plugins {
 
 	# Manual Perl6 syntax highlighting
 	Wx::Event::EVT_MENU(
-		$main_window,
-		$self->{menu}->Append( -1, "Refresh Coloring\tF7", ),
+		$main,
+		$self->{menu}->Append( -1, _T("Refresh Coloring\tF7"), ),
 		sub { $self->highlight; },
 	);
 
@@ -87,7 +101,7 @@ sub menu_plugins {
 	$self->{p6_highlight} =
 		$self->{menu}->AppendCheckItem( -1, _T("Enable Auto Coloring"),);
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{p6_highlight},
 		sub { $self->toggle_highlight; }
 	);
@@ -97,26 +111,42 @@ sub menu_plugins {
 
 	# Export into HTML
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("Export Full HTML"), ),
 		sub { $self->export_html($FULL_HTML); },
 	);
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("Export Simple HTML"), ),
 		sub { $self->export_html($SIMPLE_HTML); },
 	);
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("Export Snippet HTML"), ),
 		sub { $self->export_html($SNIPPET_HTML); },
 	);
 
 	$self->{menu}->AppendSeparator;
 
+	# Generate Perl 6 Executable
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, _T("Generate Perl 6 Executable"), ),
+		sub { $self->generate_p6_exe; },
+	);
+
+	# Generate Perl 6 PIR
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, _T("Generate Perl 6 PIR"), ),
+		sub { $self->generate_p6_pir; },
+	);
+	
+	$self->{menu}->AppendSeparator;
+
 	# Cleanup STD.pm lex cache
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("Cleanup STD.pm Lex Cache"), ),
 		sub { $self->cleanup_std_lex_cache; },
 	);
@@ -125,7 +155,7 @@ sub menu_plugins {
 
 	# Preferences
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("Preferences"), ),
 		sub { $self->show_preferences; },
 	);
@@ -134,7 +164,7 @@ sub menu_plugins {
 
 	# the famous about menu item...
 	Wx::Event::EVT_MENU(
-		$main_window,
+		$main,
 		$self->{menu}->Append( -1, _T("About"), ),
 		sub { $self->show_about },
 	);
@@ -144,7 +174,7 @@ sub menu_plugins {
 }
 
 sub registered_documents {
-	return 'application/x-perl6'    => 'Padre::Document::Perl6',
+	'application/x-perl6' => 'Padre::Document::Perl6',
 }
 
 sub show_preferences {
@@ -163,8 +193,8 @@ sub show_about {
 	my $about = Wx::AboutDialogInfo->new;
 	$about->SetName("Padre::Plugin::Perl6");
 	$about->SetDescription(
-		"Perl6 syntax highlighting that is based on\n" .
-		"Syntax::Highlight::Perl6 v" . $Syntax::Highlight::Perl6::VERSION . "\n"
+		_T("Perl 6 syntax highlighting is based on\n") .
+		_T("Syntax::Highlight::Perl6 version ") . $Syntax::Highlight::Perl6::VERSION . "\n"
 	);
 	$about->SetVersion($VERSION);
 	Wx::AboutBox( $about );
@@ -286,7 +316,7 @@ sub show_perl6_doc {
 
 	if(! $self->{perl6_functions}) {
 		Wx::MessageBox(
-			'Perl6 S29 docs are not available',
+			'Perl 6 S29 is not available',
 			'Error',
 			Wx::wxOK,
 			$main,
@@ -300,7 +330,7 @@ sub show_perl6_doc {
 		# make sure it is a Perl6 document
 		if($doc->get_mimetype ne q{application/x-perl6}) {
 			Wx::MessageBox(
-				'Not a Perl6 file',
+				'Not a Perl 6 file',
 				'Operation cancelled',
 				Wx::wxOK,
 				$main,
@@ -387,8 +417,8 @@ sub export_html {
 	}
 	if($doc->get_mimetype ne q{application/x-perl6}) {
 		Wx::MessageBox(
-			'Not a Perl6 file',
-			'Export cancelled',
+			'Not a Perl 6 file',
+			'Operation cancelled',
 			Wx::wxOK,
 			$main,
 		);
@@ -455,7 +485,7 @@ sub export_html {
 		$err =~ s/\033\[(\d+)(?:;(\d+)(?:;(\d+))?)?m//g;
 		Wx::MessageBox(
 			qq{STD.pm warning/error:\n$err},
-			'Export cancelled',
+			'Operation cancelled',
 			Wx::wxOK,
 			$main,
 		);
@@ -493,6 +523,272 @@ sub export_html {
 	return;
 }
 
+# Generate a Perl6 executable 
+# The idea came from:
+# "My first executable from Perl 6" by Moritz Lenz
+# http://perlgeek.de/blog-en/perl-6/my-first-executable.writeback
+sub generate_p6_exe {
+	my $self = shift;
+
+	my $main = $self->main;
+
+	my $doc = Padre::Current->document;
+	unless(defined $doc) {
+		return;
+	}
+	if($doc->get_mimetype ne q{application/x-perl6}) {
+		Wx::MessageBox(
+			'Not a Perl 6 file',
+			'Operation cancelled',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+
+
+	# Check for perl6 existance and that it is executable.
+	require Padre::Plugin::Perl6::Util;
+	my $perl6 = Padre::Plugin::Perl6::Util::get_perl6();
+	unless($perl6 && -x $perl6) {
+		Wx::MessageBox(
+			'Cannot find a perl6 executable',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	# Check for -e parrot existance and that it is executable.
+	my $parrot = Padre::Plugin::Perl6::Util::get_parrot_command('parrot');
+	unless($parrot && -x $parrot) {
+		Wx::MessageBox(
+			'Cannot find a parrot executable',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	# Check for -e pbc_to_exe existance and that it is executable.
+	my $pbc_to_exe = Padre::Plugin::Perl6::Util::get_parrot_command('pbc_to_exe');
+	unless($pbc_to_exe && -x $pbc_to_exe) {
+		Wx::MessageBox(
+			'Cannot find a parrot executable',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	# Check for libparrot existance
+	my $libparrot = Padre::Plugin::Perl6::Util::get_libparrot();
+	unless($libparrot) {
+		Wx::MessageBox(
+			'Cannot find a libparrot shared library',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	
+	require File::Temp;
+	#XXX- CLEANUP must be enabled once testing is finished...
+	my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
+	
+	my $hello_pl = File::Spec->catfile($tmp_dir, 'hello.pl');
+	my $hello_pir = File::Spec->catfile($tmp_dir, 'hello.pir');
+	my $hello_pbc = File::Spec->catfile($tmp_dir, 'hello.pbc');
+	my $hello_exe = File::Spec->catfile($tmp_dir, $^O eq 'MSWin32' ? 'hello.exe' : 'hello');
+
+	#XXX- quote all those files in win32
+	my $perl6_to_pir_cmd = "$perl6 --target=PIR --output=$hello_pir $hello_pl";
+	my $pir_to_pbc_cmd = "$parrot -o $hello_pbc $hello_pir";
+	my $pbc_to_perl6_exe = "$pbc_to_exe $hello_pbc";
+	# Tell the user about the commands that are going to be executed.
+	Wx::MessageBox(
+		"The following commands are going to be executed:\n\n$perl6_to_pir_cmd\n\n$pir_to_pbc_cmd\n\n$pbc_to_perl6_exe\n",
+		'Error',
+		Wx::wxOK,
+		$main,
+	);
+	
+	
+	open HELLO_PL, ">$hello_pl"
+		or die "Cannot open $hello_pl\n";
+	binmode HELLO_PL, ":utf8";
+	my $text = $doc->text_get;
+	#XXX- check text_get return value
+	print HELLO_PL $text;
+	close HELLO_PL
+		or die "Cannot close $hello_pl\n";
+
+	my $cmd_1_output = "output_1.txt";
+	my $cmd_2_output = "output_2.txt";
+	my $cmd_3_output = "output_3.txt";
+
+	# Prepare the output window for the output
+	$main->show_output(1);
+	my $outpanel = $main->output;
+	$outpanel->Remove( 0, $outpanel->GetLastPosition );
+	
+	#enable localized slurp mode
+	local $/ = undef;   
+	my $out;
+	
+	# Run command:
+	# perl6 --target=PIR --output=hello.pir hello.pl
+	print "Executing:\n $perl6_to_pir_cmd\n";
+	`$perl6_to_pir_cmd 1>$cmd_1_output 2>&1`;
+	$outpanel->style_neutral;
+	
+	# slurp the process output...
+	open OUTPUT, $cmd_1_output or warn "Could not open $cmd_1_output\n";
+	$out = <OUTPUT>;
+	close OUTPUT or warn "Could not close $cmd_1_output\n";
+	$outpanel->AppendText( $out );
+	
+	# Run command:
+	# parrot/parrot -o hello.pbc hello.pir
+	print "Executing:\n $pir_to_pbc_cmd\n";
+	`$pir_to_pbc_cmd 1>$cmd_2_output 2>&1`;
+
+	open OUTPUT, $cmd_2_output or warn "Could not open $cmd_2_output\n";
+	$out = <OUTPUT>;
+	close OUTPUT or warn "Could not close $cmd_2_output\n";
+	$outpanel->AppendText( $out );
+
+	# Run command 3.
+	# parrot/pbc_to_exe hello.pbc
+	print "Executing:\n $pbc_to_perl6_exe\n";
+	`$pbc_to_perl6_exe 1>$cmd_3_output 2>&1`;
+	
+	open OUTPUT, $cmd_3_output or warn "Could not open $cmd_3_output\n";
+	$out = <OUTPUT>;
+	close OUTPUT or warn "Could not close $cmd_3_output\n";
+	$outpanel->AppendText( $out );
+
+	unless(-x $hello_exe) {
+		Wx::MessageBox(
+			'Operation failed. Please check the output.',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	# Copy the executable to your current folder
+	# Copy libparrot.dll or libparrot.so into current folder
+	my $current_dir = Cwd::getcwd();
+	my $libparrot_name = File::Basename::fileparse($libparrot);
+	my $hello_exe_name = File::Basename::fileparse($hello_exe);
+	my $dest_libparrot = File::Spec->catfile( $current_dir, $libparrot_name );
+	my $dest_hello_exe = File::Spec->catfile( $current_dir, $hello_exe_name);
+	print "Copying $libparrot into $dest_libparrot\n";
+	File::Copy::copy( $libparrot, $dest_libparrot );
+	print "Copying $hello_exe into $dest_hello_exe\n";
+	File::Copy::copy( $hello_exe, $dest_hello_exe );
+
+	#
+	# Check if the executable is there and tell the user if it succeeded or not
+	# and give out statistics about it if possible (size, permissions, ...)
+}
+
+# Generates Parrot PIR code from rakudo
+# and displays it to the user
+sub generate_p6_pir {
+	my $self = shift;
+	
+	
+	my $main = $self->main;
+
+	my $doc = Padre::Current->document;
+	unless(defined $doc) {
+		return;
+	}
+	if($doc->get_mimetype ne q{application/x-perl6}) {
+		Wx::MessageBox(
+			'Not a Perl 6 file',
+			'Operation cancelled',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+
+
+	# Check for perl6 existance and that it is executable.
+	require Padre::Plugin::Perl6::Util;
+	my $perl6 = Padre::Plugin::Perl6::Util::get_perl6();
+	unless($perl6 && -x $perl6) {
+		Wx::MessageBox(
+			'Cannot find a perl6 executable',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
+	require File::Temp;
+	my $tmp_dir = File::Temp->newdir( CLEANUP => 0 );
+	
+	my $hello_pl = File::Spec->catfile($tmp_dir, 'hello.pl');
+	my $hello_pir = File::Spec->catfile($tmp_dir, 'hello.pir');
+
+	#XXX- quote all those files in win32
+	my $perl6_to_pir_cmd = "$perl6 --target=PIR --output=$hello_pir $hello_pl";
+	# Tell the user about the commands that are going to be executed.
+	Wx::MessageBox(
+		"The following command is going to be executed:\n\n$perl6_to_pir_cmd\n",
+		'Error',
+		Wx::wxOK,
+		$main,
+	);
+	
+	
+	open HELLO_PL, ">$hello_pl"
+		or die "Cannot open $hello_pl\n";
+	binmode HELLO_PL, ":utf8";
+	my $text = $doc->text_get;
+	#XXX- check text_get return value
+	print HELLO_PL $text;
+	close HELLO_PL
+		or die "Cannot close $hello_pl\n";
+
+	my $cmd_output = File::Spec->catfile($tmp_dir, "output.txt");
+
+	# Prepare the output window for the output
+	$main->show_output(1);
+	my $outpanel = $main->output;
+	$outpanel->Remove( 0, $outpanel->GetLastPosition );
+	
+	#enable localized slurp mode
+	local $/ = undef;   
+	my $out;
+	
+	# Run command:
+	# perl6 --target=PIR --output=hello.pir hello.pl
+	print "Executing:\n $perl6_to_pir_cmd\n";
+	`$perl6_to_pir_cmd 1>$cmd_output 2>&1`;
+	$outpanel->style_neutral;
+	
+	# slurp the process output...
+	open OUTPUT, $cmd_output or warn "Could not open $cmd_output\n";
+	$out = <OUTPUT>;
+	close OUTPUT or warn "Could not close $cmd_output\n";
+	$outpanel->AppendText( $out );
+
+	# try to open the HTML file
+	$main->setup_editor($hello_pir);
+	
+}
 
 1;
 
@@ -516,6 +812,10 @@ Gabor Szabo L<http://szabgab.com/>
 
 Copyright 2008-2009 Gabor Szabo. L<http://szabgab.com/> and
 Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+
+The Camelia image is copyright 2009 by Larry Wall.  Permission to use
+is granted under the Artistic License 2.0, or any subsequent version
+of the Artistic License.
 
 =head1 LICENSE
 

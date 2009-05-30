@@ -1,6 +1,6 @@
 ---
 name: Padre-Plugin-Perl6
-version: 0.40
+version: 0.41
 author:
   - Ahmad M. Zawawi and Gabor Szabo
 abstract: Padre plugin for Perl6
@@ -10,9 +10,10 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/
 requires:
+  Class::XSAccessor: 1.02
   File::Which: 0.05
   Padre: 0.33
-  Syntax::Highlight::Perl6: 0.57
+  Syntax::Highlight::Perl6: 0.58
   URI: 1.37
   perl: 5.010
 build_requires:
@@ -23,22 +24,25 @@ build_requires:
 provides:
   Padre::Document::Perl6:
     file: lib/Padre/Document/Perl6.pm
-    version: 0.40
+    version: 0.41
   Padre::Plugin::Perl6:
     file: lib/Padre/Plugin/Perl6.pm
-    version: 0.40
+    version: 0.41
   Padre::Plugin::Perl6::Preferences:
     file: lib/Padre/Plugin/Perl6/Preferences.pm
-    version: 0.40
+    version: 0.41
+  Padre::Plugin::Perl6::Util:
+    file: lib/Padre/Plugin/Perl6/Util.pm
+    version: 0.41
   Padre::Task::Outline::Perl6:
     file: lib/Padre/Task/Outline/Perl6.pm
-    version: 0.40
+    version: 0.41
   Padre::Task::Perl6:
     file: lib/Padre/Task/Perl6.pm
-    version: 0.40
+    version: 0.41
   Padre::Task::SyntaxChecker::Perl6:
     file: lib/Padre/Task/SyntaxChecker/Perl6.pm
-    version: 0.40
+    version: 0.41
 generated_by: Module::Build version 0.3
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

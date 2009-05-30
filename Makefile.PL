@@ -6,9 +6,10 @@ WriteMakefile
           'NAME' => 'Padre::Plugin::Perl6',
           'VERSION_FROM' => 'lib/Padre/Plugin/Perl6.pm',
           'PREREQ_PM' => {
+                           'Class::XSAccessor' => '1.02',
                            'File::Which' => '0.05',
                            'Padre' => '0.33',
-                           'Syntax::Highlight::Perl6' => '0.57',
+                           'Syntax::Highlight::Perl6' => '0.58',
                            'Test::Exception' => '0.27',
                            'Test::More' => '0.86',
                            'Test::NeedsDisplay' => '1.05',

@@ -36,11 +36,11 @@ sub ACTION_build {
 
 sub ACTION_dist {
 		
-	if($ENV{PERL6_PLUGIN_DEV}) {
+	if($ENV{PADRE_PLUGIN_PERL6}) {
 		my $self = shift;
 		$self->SUPER::ACTION_dist;
 	} else {
-		die "You did not enable PERL6_PLUGIN_DEV environment variable.";
+		die "You did not enable PADRE_PLUGIN_PERL6 environment variable.";
 	}
 }
 
@@ -50,7 +50,7 @@ SUBCLASS
 my %requires = (
 	'perl'                     => '5.010',
 	'Padre'                    => '0.33',
-	'Syntax::Highlight::Perl6' => '0.58',
+	'Syntax::Highlight::Perl6' => '0.61',
 	'URI'                      => '1.37',
 	'File::Which'              => '0.05',
 	'Class::XSAccessor'        => '1.02',
@@ -72,9 +72,6 @@ my $builder = $class->new(
 		'Test::NeedsDisplay'      => '1.05',
 	},
     requires => \%requires,
-	PL_files => {
-		'lib/Padre/Task/p6tokens.pl' => [],  # ignore it please
-	},
     add_to_cleanup      => [ 'Padre-Plugin-Perl6-*' ],
     create_makefile_pl  => 'traditional',
     meta_merge     => {
@@ -87,4 +84,5 @@ my $builder = $class->new(
 
 $builder->add_build_element('mo');
 $builder->add_build_element('png');
+$builder->add_build_element('p5');
 $builder->create_build_script();

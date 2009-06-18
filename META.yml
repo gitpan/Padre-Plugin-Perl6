@@ -1,6 +1,6 @@
 ---
 name: Padre-Plugin-Perl6
-version: 0.41
+version: 0.42
 author:
   - Ahmad M. Zawawi and Gabor Szabo
 abstract: Padre plugin for Perl6
@@ -13,7 +13,7 @@ requires:
   Class::XSAccessor: 1.02
   File::Which: 0.05
   Padre: 0.33
-  Syntax::Highlight::Perl6: 0.58
+  Syntax::Highlight::Perl6: 0.61
   URI: 1.37
   perl: 5.010
 build_requires:
@@ -22,27 +22,27 @@ build_requires:
   Test::NeedsDisplay: 1.05
   Test::NoWarnings: 0.084
 provides:
-  Padre::Document::Perl6:
-    file: lib/Padre/Document/Perl6.pm
-    version: 0.41
   Padre::Plugin::Perl6:
     file: lib/Padre/Plugin/Perl6.pm
-    version: 0.41
+    version: 0.42
+  Padre::Plugin::Perl6::Perl6ColorizerTask:
+    file: lib/Padre/Plugin/Perl6/Perl6ColorizerTask.pm
+    version: 0.42
+  Padre::Plugin::Perl6::Perl6Document:
+    file: lib/Padre/Plugin/Perl6/Perl6Document.pm
+    version: 0.42
+  Padre::Plugin::Perl6::Perl6OutlineTask:
+    file: lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
+    version: 0.42
+  Padre::Plugin::Perl6::Perl6SyntaxCheckerTask:
+    file: lib/Padre/Plugin/Perl6/Perl6SyntaxCheckerTask.pm
+    version: 0.42
   Padre::Plugin::Perl6::Preferences:
     file: lib/Padre/Plugin/Perl6/Preferences.pm
-    version: 0.41
+    version: 0.42
   Padre::Plugin::Perl6::Util:
     file: lib/Padre/Plugin/Perl6/Util.pm
-    version: 0.41
-  Padre::Task::Outline::Perl6:
-    file: lib/Padre/Task/Outline/Perl6.pm
-    version: 0.41
-  Padre::Task::Perl6:
-    file: lib/Padre/Task/Perl6.pm
-    version: 0.41
-  Padre::Task::SyntaxChecker::Perl6:
-    file: lib/Padre/Task/SyntaxChecker/Perl6.pm
-    version: 0.41
+    version: 0.42
 generated_by: Module::Build version 0.3
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html

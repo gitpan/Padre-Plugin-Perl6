@@ -1,10 +1,10 @@
-package Padre::Task::Perl6;
+package Padre::Plugin::Perl6::Perl6ColorizerTask;
 
 use strict;
 use warnings;
 use base 'Padre::Task';
 
-our $VERSION = '0.41';
+our $VERSION = '0.42';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -134,7 +134,7 @@ sub run {
 	require File::Basename;
 	require File::Spec;
 	my $cmd = Padre->perl_interpreter . " " .
-		Cwd::realpath(File::Spec->join(File::Basename::dirname(__FILE__),'p6tokens.pl')) .
+		Cwd::realpath(File::Spec->join(File::Basename::dirname(__FILE__),'p6tokens.p5')) .
 		" $tmp_in $tmp_out $tmp_err";
 	
 	# all this is needed to prevent win32 platforms from:
@@ -183,18 +183,24 @@ sub run {
 		my ($lineno, $severity);
 		my $issues = [];
 		for my $msg (@messages) {
-			if($msg =~ /^\#\#\#\#\# PARSE FAILED \#\#\#\#\#/) {
+			if($msg =~ /^\#\#\#\#\# PARSE FAILED \#\#\#\#\#/i) {
 				# the following lines are errors until we see the warnings section
 				$severity = 'E';
-			} elsif($msg =~ /^Potential difficulties/) {
+			} elsif($msg =~ /^Potential difficulties/i) {
 				# all rest are warnings...
 				$severity = 'W';
+			} elsif($msg =~ /^Undeclared routine/i) {
+				# all rest are warnings...
+				$severity = 'W';
+			} elsif($msg =~ /^\s+(.+?)\s+used at (\d+)/i) {
+				# record the line number
+				$lineno = $2;
 			} elsif($msg =~ /line (\d+):$/i) {
 				# record the line number
 				$lineno = $1;
-			} elsif($msg =~ /^Can't locate object method ".+?" via package "STD"/) {
+			} elsif($msg =~ /^Can't locate object method ".+?" via package "STD"/i) {
 				# STD lex cache is corrupt...
-				$msg = qq{'STD Lex Cache' is corrupt. Please use Plugins/Perl6/Cleanup STD Lex Cache.};
+				$msg = Wx::gettext("'STD Lex Cache' is corrupt. Please click on Plugins/Perl6/Cleanup STD Lex Cache and then re-open the file.");
 				push @{$issues}, { line => 1, msg => $msg, severity => 'E', };
 				# no need to continue collecting errors...
 				last; 

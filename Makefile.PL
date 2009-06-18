@@ -9,7 +9,7 @@ WriteMakefile
                            'Class::XSAccessor' => '1.02',
                            'File::Which' => '0.05',
                            'Padre' => '0.33',
-                           'Syntax::Highlight::Perl6' => '0.58',
+                           'Syntax::Highlight::Perl6' => '0.61',
                            'Test::Exception' => '0.27',
                            'Test::More' => '0.86',
                            'Test::NeedsDisplay' => '1.05',

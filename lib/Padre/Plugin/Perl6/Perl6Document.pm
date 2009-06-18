@@ -1,12 +1,10 @@
-package Padre::Document::Perl6;
+package Padre::Plugin::Perl6::Perl6Document;
 
 use 5.010;
 use strict;
 use warnings;
-use Padre::Document ();
-use Padre::Task::Perl6 ();
 
-our $VERSION = '0.41';
+our $VERSION = '0.42';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -14,7 +12,7 @@ my $CALLTIP_DISPLAY_COUNT = 10;
 
 # colorize timer to make sure that colorize tasks are scheduled properly...
 my $COLORIZE_TIMER;
-my $COLORIZE_TIMEOUT = 1000; # wait n-millisecond before starting the Perl6 colorize task
+my $COLORIZE_TIMEOUT = 100; # wait n-millisecond before starting the Perl6 colorize task
 
 # used for coloring by parrot
 my %perl6_colors = (
@@ -126,7 +124,8 @@ sub colorize {
 				$main, $timer_id, 
 				sub { 
 					# Create a coloring task and hand off to the task manager
-					my $task = Padre::Task::Perl6->new(
+					require Padre::Plugin::Perl6::Perl6ColorizerTask;
+					my $task = Padre::Plugin::Perl6::Perl6ColorizerTask->new(
 						text => $self->text_with_one_nl,
 						editor => $self->editor,
 						document => $self);
@@ -209,7 +208,7 @@ sub get_command {
 
 # Checks the syntax of a Perl document.
 # Documented in Padre::Document!
-# Implemented as a task. See Padre::Task::SyntaxChecker::Perl6
+# Implemented as a task. See Padre::Plugin::Perl6::Perl6SyntaxChecker
 sub check_syntax {
 	my $self  = shift;
 	my %args  = @_;
@@ -245,8 +244,8 @@ sub _check_syntax_internals {
 	}
 	$self->{last_syncheck_md5} = $md5;
 
-	require Padre::Task::SyntaxChecker::Perl6;
-	my $task = Padre::Task::SyntaxChecker::Perl6->new(
+	require Padre::Plugin::Perl6::Perl6SyntaxCheckerTask;
+	my $task = Padre::Plugin::Perl6::Perl6SyntaxCheckerTask->new(
 		notebook_page => $self->editor,
 		text => $text,
 		issues => $self->{issues},
@@ -354,8 +353,8 @@ sub get_outline {
 	}
 	$self->{last_outline_md5} = $md5;
 
-	require Padre::Task::Outline::Perl6;
-	my $task = Padre::Task::Outline::Perl6->new(
+	require Padre::Plugin::Perl6::Perl6OutlineTask;
+	my $task = Padre::Plugin::Perl6::Perl6OutlineTask->new(
 		editor => $self->editor,
 		text   => $text,
 		tokens => $tokens,

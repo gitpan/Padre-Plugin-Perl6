@@ -4,15 +4,16 @@ use warnings;
 use strict;
 
 use Class::XSAccessor accessors => {
-	_plugin      => '_plugin',       # plugin to be configured
-	_sizer       => '_sizer',        # window sizer
+	_plugin           => '_plugin',           # plugin to be configured
+	_sizer            => '_sizer',            # window sizer
+	_colorizer_cb     => '_colorizer_cb',      # colorizer on/off checkbox
+	_colorizer_list   => '_colorizer_list',    # colorizer list box
 };
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 
 use Padre::Current;
 use Padre::Wx ();
-use Padre::Util   ('_T');
 
 use base 'Wx::Dialog';
 
@@ -26,7 +27,7 @@ sub new {
 	my $self = $class->SUPER::new(
 		Padre::Current->main,
 		-1,
-		_T('Perl6 preferences'),
+		Wx::gettext('Perl 6 preferences'),
 		Wx::wxDefaultPosition,
 		Wx::wxDefaultSize,
 		Wx::wxDEFAULT_FRAME_STYLE|Wx::wxTAB_TRAVERSAL,
@@ -49,18 +50,29 @@ sub new {
 # handler called when the ok button has been clicked.
 # 
 sub _on_ok_button_clicked {
-	my ($self) = @_;
+	my $self = shift;
+	
 	my $plugin = $self->_plugin;
 
 	# read plugin preferences
-	#my $prefs = $plugin->config;
+	my $prefs = $plugin->config;
 
-	# overwrite dictionary preference
-	#my $dic = $self->_dict_combo->GetValue;
-	#$prefs->{dictionary} = $dic;
+	# update configuration
+	my $old_p6_highlight = $prefs->{p6_highlight};
+	my $old_colorizer = $prefs->{colorizer};
+	$prefs->{p6_highlight} = $self->_colorizer_cb->GetValue();
+	$prefs->{colorizer} = ($self->_colorizer_list->GetSelection() == 0) ? 
+		'STD' : 'PGE';
 
 	# store plugin preferences
-	#$plugin->config_write($prefs);
+	$plugin->config_write($prefs);
+
+	if($old_p6_highlight != $prefs->{p6_highlight} || $old_colorizer ne $prefs->{colorizer}) {
+		# a configuration change for colorizer
+		if( $prefs->{p6_highlight} ) {
+			$plugin->highlight;
+		}
+	}
 	
 	$self->Destroy;
 }
@@ -69,14 +81,10 @@ sub _on_ok_button_clicked {
 # -- private methods
 
 #
-# $self->_create;
-#
 # create the dialog itself.
 #
-# no params, no return values.
-#
 sub _create {
-	my ($self) = @_;
+	my $self = shift;
 
 	# create sizer that will host all controls
 	my $sizer = Wx::BoxSizer->new( Wx::wxVERTICAL );
@@ -92,14 +100,10 @@ sub _create {
 }
 
 #
-# $dialog->_create_buttons;
-#
 # create the buttons pane.
 #
-# no params. no return values.
-#
 sub _create_buttons {
-	my ($self) = @_;
+	my $self = shift;
 	my $sizer  = $self->_sizer;
 
 	my $butsizer = $self->CreateStdDialogButtonSizer(Wx::wxOK|Wx::wxCANCEL);
@@ -108,106 +112,47 @@ sub _create_buttons {
 }
 
 #
-# $dialog->_create_controls;
-#
 # create the pane to choose the various configuration parameters.
 #
-# no params. no return values.
-#
 sub _create_controls {
-	my ($self) = @_;
+	my $self = shift;
 
-	my @choices = ['S:H:P6/STD','Rakudo/PGE'];
+	$self->_colorizer_cb(
+		Wx::CheckBox->new( $self, -1, Wx::gettext('Enable coloring'))
+	);
+	
+	my @choices = [
+		'S:H:P6/STD',
+		'Rakudo/PGE'
+	];
 	# syntax highligher selection
-	my $selector_label = Wx::StaticText->new( $self, -1, _T('Syntax Highlighter:') );
-	my $selector_list = Wx::ListBox->new(
-		$self,
-		-1,
-		Wx::wxDefaultPosition,
-		Wx::wxDefaultSize,
-		@choices,
+	my $colorizer_list_label = Wx::StaticText->new( $self, -1, Wx::gettext('Colorizer:') );
+	$self->_colorizer_list( 
+		Wx::ListBox->new(
+			$self,
+			-1,
+			Wx::wxDefaultPosition,
+			[150,50],
+			@choices,
+		)
 	);
 	
-	# XXX - Select based on configuration variable
-	$selector_list->Select(0);
+	# Select based on configuration parameters
+	my $config = $self->_plugin->config;
+	$self->_colorizer_cb->SetValue( $config->{p6_highlight} );
+	$self->_colorizer_list->Select( $config->{colorizer} eq 'STD' ? 0 : 1);
 	
-	# XXX- fill out these variables with actual configuration variables...
-	my $mildew_dir = Cwd::cwd();
-	my $rakudo_dir = Cwd::cwd();
-	
-	# mildew directory
-	my $mildew_dir_label = Wx::StaticText->new( $self, -1, 'mildew:' );
-	my $mildew_dir_text = Wx::TextCtrl->new(
-		$self,
-		-1,
-		$mildew_dir,
-		Wx::wxDefaultPosition,
-		Wx::wxDefaultSize,
-		Wx::wxTE_READONLY,
-	);
-	require Cwd;
-	my $mildew_dir_picker = Wx::DirPickerCtrl->new(
-		$self,
-		-1,
-		$mildew_dir,
-		_T('Pick mildew Directory'),
-		Wx::wxDefaultPosition,
-		Wx::wxDefaultSize,
-	);
-
-	Wx::Event::EVT_DIRPICKER_CHANGED(
-		$mildew_dir_picker,
-		$mildew_dir_picker->GetId(),
-		sub {
-			$mildew_dir_text->SetValue($mildew_dir_picker->GetPath());
-		 },
-	);
-
-	# rakudo directory
-	my $rakudo_dir_label = Wx::StaticText->new( $self, -1, 'rakudo:' );
-	my $rakudo_dir_text = Wx::TextCtrl->new(
-		$self,
-		-1,
-		$rakudo_dir,
-		Wx::wxDefaultPosition,
-		Wx::wxDefaultSize,
-		Wx::wxTE_READONLY,
-	);
-	my $rakudo_dir_picker = Wx::DirPickerCtrl->new(
-		$self,
-		-1,
-		$rakudo_dir,
-		_T('Pick rakudo Directory'),
-		Wx::wxDefaultPosition,
-		Wx::wxDefaultSize,
-	);
-
-	Wx::Event::EVT_DIRPICKER_CHANGED(
-		$rakudo_dir_picker,
-		$rakudo_dir_picker->GetId(),
-		sub {
-			$rakudo_dir_text->SetValue($rakudo_dir_picker->GetPath());
-		 },
-	);
-
 	# pack the controls in a box
 	my $box;
 	$box = Wx::BoxSizer->new(Wx::wxHORIZONTAL);
-	$box->Add( $selector_label, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$box->Add( $selector_list, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
+	$box->Add( $self->_colorizer_cb, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
 	$self->_sizer->Add( $box, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
 
 	$box = Wx::BoxSizer->new(Wx::wxHORIZONTAL);
-	$box->Add( $mildew_dir_label, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$box->Add( $mildew_dir_text, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$box->Add( $mildew_dir_picker, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
+	$box->Add( $colorizer_list_label, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
+	$box->Add( $self->_colorizer_list, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
 	$self->_sizer->Add( $box, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
 
-	$box = Wx::BoxSizer->new(Wx::wxHORIZONTAL);
-	$box->Add( $rakudo_dir_label, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$box->Add( $rakudo_dir_text, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$box->Add( $rakudo_dir_picker, 1, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
-	$self->_sizer->Add( $box, 0, Wx::wxALL|Wx::wxEXPAND|Wx::wxALIGN_CENTER, 5 );
 }
 
 

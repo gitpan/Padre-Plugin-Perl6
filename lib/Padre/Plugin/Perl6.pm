@@ -5,17 +5,20 @@ use strict;
 use warnings;
 use Carp;
 use Padre::Wx   ();
-use Padre::Util ('_T');
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.42';
+our $VERSION   = '0.43';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
 my $FULL_HTML    = 'full_html';
 my $SIMPLE_HTML  = 'simple_html';
 my $SNIPPET_HTML = 'snippet_html';
+
+use Class::XSAccessor accessors => {
+	config         => 'config',           # plugin configuration object
+};
 
 # static field to contain reference to current plugin configuration
 my $config;
@@ -47,11 +50,11 @@ sub padre_interfaces {
 
 # plugin icon
 sub plugin_icon {
-    # find resource path
-    my $iconpath = File::Spec->catfile( _sharedir(), 'icons', 'camelia.png');
+	# find resource path
+	my $iconpath = File::Spec->catfile( _sharedir(), 'icons', 'camelia.png');
 
-    # create and return icon
-    return Wx::Bitmap->new( $iconpath, Wx::wxBITMAP_TYPE_PNG );
+	# create and return icon
+	return Wx::Bitmap->new( $iconpath, Wx::wxBITMAP_TYPE_PNG );
 }
 
 # called when the plugin is enabled
@@ -60,12 +63,25 @@ sub plugin_enable {
 
 	# Read the plugin configuration, and create it if it is not there
 	$config = $self->config_read;
-	if(! $config) {
+	if(not $config) {
 		# no configuration, let us write some defaults
-		$config = {p6_highlight => 0};
-		$self->config_write($config);
+		$config = {};
+	}
+	
+	# make sure defaults are respected if they are undefined.
+	if(not defined $config->{colorizer}) {
+		$config->{colorizer} = 'STD';
+	}
+	if(not defined $config->{p6_highlight}) {
+		$config->{p6_highlight} = 1;
 	}
 
+	# and write the plugin's configuration
+	$self->config_write($config);
+
+	# update configuration attribute
+	$self->config( $config );
+	
 	# let us parse some S29-functions.pod documentation (safely)
 	eval {
 		$self->build_perl6_doc;
@@ -78,8 +94,84 @@ sub menu_plugins {
 	my $self = shift;
 	my $main = shift;
 
-	# Create a simple menu with a single About entry
+	# plugin menu
 	$self->{menu} = Wx::Menu->new;
+
+	# New Perl 6... menu
+	my $file_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("Create Perl 6..."), $file_menu),
+		sub {},
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Class"), ),
+		sub { $self->_create_from_template('p6_class','p6') },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Grammar"), ),
+		sub { $self->_create_from_template('p6_grammar', 'p6') },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Package"), ),
+		sub { $self->_create_from_template('p6_package', 'p6') },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Module"), ),
+		sub { $self->_create_from_template('p6_module', 'p6') },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Role"), ),
+		sub { $self->_create_from_template('p6_role', 'p6') },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$file_menu->Append( -1, Wx::gettext("Perl 6 in Perl 5"), ),
+		sub { $self->_create_from_template('p6_inline_in_p5', 'p5') },
+	);
+
+	# Export sub menu
+	my $export_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("Export..."), $export_menu),
+		sub { $self->export_html($FULL_HTML); },
+	);
+	# Generate Perl 6 Executable
+	Wx::Event::EVT_MENU(
+		$main,
+		$export_menu->Append( -1, Wx::gettext("Perl 6 Executable"), ),
+		sub { $self->generate_p6_exe; },
+	);
+
+	# Generate Perl 6 PIR
+	Wx::Event::EVT_MENU(
+		$main,
+		$export_menu->Append( -1, Wx::gettext("Perl 6 PIR"), ),
+		sub { $self->generate_p6_pir; },
+	);
+	
+	# Export into HTML
+	Wx::Event::EVT_MENU(
+		$main,
+		$export_menu->Append( -1, Wx::gettext("Full html"), ),
+		sub { $self->export_html($FULL_HTML); },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$export_menu->Append( -1, Wx::gettext("Simple html"), ),
+		sub { $self->export_html($SIMPLE_HTML); },
+	);
+	Wx::Event::EVT_MENU(
+		$main,
+		$export_menu->Append( -1, Wx::gettext("Snippet html"), ),
+		sub { $self->export_html($SNIPPET_HTML); },
+	);
 
 	# Perl6 S29 documentation
 	Wx::Event::EVT_MENU(
@@ -88,62 +180,6 @@ sub menu_plugins {
 		sub { $self->show_perl6_doc; },
 	);
 
-	$self->{menu}->AppendSeparator;
-
-	# Manual Perl6 syntax highlighting
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Refresh Coloring\tF7"), ),
-		sub { $self->highlight; },
-	);
-
-	# Toggle Auto Perl6 syntax highlighting
-	$self->{p6_highlight} =
-		$self->{menu}->AppendCheckItem( -1, Wx::gettext("Enable Auto Coloring"),);
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{p6_highlight},
-		sub { $self->toggle_highlight; }
-	);
-	$self->{p6_highlight}->Check($config->{p6_highlight} ? 1 : 0);
-
-	$self->{menu}->AppendSeparator;
-
-	# Export into HTML
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Export Full HTML"), ),
-		sub { $self->export_html($FULL_HTML); },
-	);
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Export Simple HTML"), ),
-		sub { $self->export_html($SIMPLE_HTML); },
-	);
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Export Snippet HTML"), ),
-		sub { $self->export_html($SNIPPET_HTML); },
-	);
-
-	$self->{menu}->AppendSeparator;
-
-	# Generate Perl 6 Executable
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Generate Perl 6 Executable"), ),
-		sub { $self->generate_p6_exe; },
-	);
-
-	# Generate Perl 6 PIR
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Generate Perl 6 PIR"), ),
-		sub { $self->generate_p6_pir; },
-	);
-	
-	$self->{menu}->AppendSeparator;
-
 	# Cleanup STD.pm lex cache
 	Wx::Event::EVT_MENU(
 		$main,
@@ -151,16 +187,12 @@ sub menu_plugins {
 		sub { $self->cleanup_std_lex_cache; },
 	);
 
-	$self->{menu}->AppendSeparator;
-
 	# Preferences
 	Wx::Event::EVT_MENU(
 		$main,
 		$self->{menu}->Append( -1, Wx::gettext("Preferences"), ),
 		sub { $self->show_preferences; },
 	);
-
-	$self->{menu}->AppendSeparator;
 
 	# the famous about menu item...
 	Wx::Event::EVT_MENU(
@@ -177,6 +209,24 @@ sub registered_documents {
 	'application/x-perl6' => 'Padre::Plugin::Perl6::Perl6Document',
 }
 
+# create a Perl 6 file from the template
+sub _create_from_template {
+	my ( $self, $template, $extension ) = @_;
+	
+	$self->main->on_new;
+	
+	my $editor = $self->current->editor or return;
+	my $file   = File::Spec->catdir( _sharedir(), "templates/$template.$extension" );
+	$editor->insert_from_file($file);
+
+	my $document = $editor->{Document};
+	$document->set_mimetype( $document->mime_type_by_extension($extension) );
+	$document->editor->padre_setup;
+	$document->rebless;
+
+	return;
+}
+
 sub show_preferences {
 	my $self = shift;
 	
@@ -186,7 +236,7 @@ sub show_preferences {
 }
 
 sub show_about {
-	my ($main) = @_;
+	my $main = shift;
 
 	require Syntax::Highlight::Perl6;
 	
@@ -197,6 +247,14 @@ sub show_about {
 		Wx::gettext("Syntax::Highlight::Perl6 version ") . $Syntax::Highlight::Perl6::VERSION . "\n"
 	);
 	$about->SetVersion($VERSION);
+
+	# create and return the camelia icon
+	my $camelia_path = File::Spec->catfile( _sharedir(), 'icons', 'camelia-big.png');
+	my $camelia_bmp = Wx::Bitmap->new( $camelia_path, Wx::wxBITMAP_TYPE_PNG );
+	my $camelia_icon = Wx::Icon->new();
+	$camelia_icon->CopyFromBitmap($camelia_bmp);
+	$about->SetIcon($camelia_icon);
+	
 	Wx::AboutBox( $about );
 	return;
 }
@@ -274,7 +332,8 @@ sub build_perl6_doc {
 	my $self = shift;
 
 	# open the S29 file
-	my $s29_file = File::Spec->join(File::Basename::dirname(__FILE__), '../Task/S29-functions.pod');
+	my $s29_file = File::Spec->join(File::Basename::dirname(__FILE__),
+		'Perl6/S29-functions.pod');
 	require IO::File;
 	my $S29 = IO::File->new(Cwd::realpath($s29_file))
 				or croak "Cannot open '$s29_file' $!";
@@ -365,18 +424,6 @@ sub show_perl6_doc {
 	}
 }
 
-sub toggle_highlight {
-	my $self = shift;
-	if(! defined $self->{p6_highlight}) {
-		return;
-	}
-	$config->{p6_highlight} = $self->{p6_highlight}->IsChecked ? 1 : 0;
-	$self->config_write($config);
-	if($config->{p6_highlight}) {
-		$self->highlight;
-	}
-}
-
 sub highlight {
 	my $self = shift;
 	my $doc = Padre::Current->document or return;
@@ -409,16 +456,18 @@ sub text_with_one_nl {
 sub export_html {
 	my ($self, $type) = @_;
 
-	my $main   = $self->main;
+	my $main = $self->main;
 
-	my $doc = Padre::Current->document;
-	if(!defined $doc) {
+	my $doc = $main->current->document;
+	if(not defined $doc) {
+		Wx::MessageBox( Wx::gettext('No document'), Wx::gettext('Error'), Wx::wxOK, $main, );
 		return;
 	}
+	
 	if($doc->get_mimetype ne q{application/x-perl6}) {
 		Wx::MessageBox(
-			'Not a Perl 6 file',
-			'Operation cancelled',
+			Wx::gettext('Not a Perl 6 file'),
+			Wx::gettext('Operation cancelled'),
 			Wx::wxOK,
 			$main,
 		);
@@ -532,8 +581,9 @@ sub generate_p6_exe {
 
 	my $main = $self->main;
 
-	my $doc = Padre::Current->document;
-	unless(defined $doc) {
+	my $doc = $main->current->document;
+	if(not defined $doc) {
+		Wx::MessageBox( Wx::gettext('No document'), Wx::gettext('Error'), Wx::wxOK, $main, );
 		return;
 	}
 	if($doc->get_mimetype ne q{application/x-perl6}) {
@@ -708,8 +758,9 @@ sub generate_p6_pir {
 	
 	my $main = $self->main;
 
-	my $doc = Padre::Current->document;
-	unless(defined $doc) {
+	my $doc = $main->current->document;
+	if(not defined $doc) {
+		Wx::MessageBox( Wx::gettext('No document'), Wx::gettext('Error'), Wx::wxOK, $main, );
 		return;
 	}
 	if($doc->get_mimetype ne q{application/x-perl6}) {
@@ -785,6 +836,16 @@ sub generate_p6_pir {
 	close OUTPUT or warn "Could not close $cmd_output\n";
 	$outpanel->AppendText( $out );
 
+	unless(-f $hello_pir) {
+		Wx::MessageBox(
+			'Operation failed. Please check the output.',
+			'Error',
+			Wx::wxOK,
+			$main,
+		);
+		return;
+	}
+	
 	# try to open the HTML file
 	$main->setup_editor($hello_pir);
 	

@@ -1,10 +1,10 @@
-package Padre::Plugin::Perl6::Perl6ColorizerTask;
+package Padre::Plugin::Perl6::Perl6StdColorizerTask;
 
 use strict;
 use warnings;
 use base 'Padre::Task';
 
-our $VERSION = '0.42';
+our $VERSION = '0.43';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -42,28 +42,28 @@ sub is_broken {
 }
 
 my %colors = (
-	'comp_unit'  => Padre::Constant::BLUE,
-	'scope_declarator' => Padre::Constant::RED,
-	'routine_declarator' => Padre::Constant::RED,
-	'regex_declarator' => Padre::Constant::RED,
-	'package_declarator' => Padre::Constant::RED,
-	'statement_control' => Padre::Constant::RED,
-	'block' => Padre::Constant::BLACK,
-	'regex_block' => Padre::Constant::BLACK,
-	'noun' => Padre::Constant::BLACK,
-	'sigil' => Padre::Constant::GREEN,
-	'variable' => Padre::Constant::GREEN,
-	'assertion' => Padre::Constant::GREEN,
-	'quote' => Padre::Constant::MAGENTA,
-	'number' => Padre::Constant::ORANGE,
-	'infix' => Padre::Constant::DIM_GRAY,
-	'methodop' => Padre::Constant::BLACK,
-	'pod_comment' => Padre::Constant::GREEN,
-	'param_var' => Padre::Constant::CRIMSON,
-	'_scalar' => Padre::Constant::RED,
-	'_array' => Padre::Constant::BROWN,
-	'_hash' => Padre::Constant::ORANGE,
-	'_comment' => Padre::Constant::GREEN,
+	'comp_unit'  => Padre::Constant::PADRE_BLUE,
+	'scope_declarator' => Padre::Constant::PADRE_RED,
+	'routine_declarator' => Padre::Constant::PADRE_RED,
+	'regex_declarator' => Padre::Constant::PADRE_RED,
+	'package_declarator' => Padre::Constant::PADRE_RED,
+	'statement_control' => Padre::Constant::PADRE_RED,
+	'block' => Padre::Constant::PADRE_BLACK,
+	'regex_block' => Padre::Constant::PADRE_BLACK,
+	'noun' => Padre::Constant::PADRE_BLACK,
+	'sigil' => Padre::Constant::PADRE_GREEN,
+	'variable' => Padre::Constant::PADRE_GREEN,
+	'assertion' => Padre::Constant::PADRE_GREEN,
+	'quote' => Padre::Constant::PADRE_MAGENTA,
+	'number' => Padre::Constant::PADRE_ORANGE,
+	'infix' => Padre::Constant::PADRE_DIM_GRAY,
+	'methodop' => Padre::Constant::PADRE_BLACK,
+	'pod_comment' => Padre::Constant::PADRE_GREEN,
+	'param_var' => Padre::Constant::PADRE_CRIMSON,
+	'_scalar' => Padre::Constant::PADRE_RED,
+	'_array' => Padre::Constant::PADRE_BROWN,
+	'_hash' => Padre::Constant::PADRE_ORANGE,
+	'_comment' => Padre::Constant::PADRE_GREEN,
 );
 
 # This is run in the main thread after the task is done.
@@ -182,6 +182,7 @@ sub run {
 		my @messages = split /\n/, $err;
 		my ($lineno, $severity);
 		my $issues = [];
+		my $prefix = '';
 		for my $msg (@messages) {
 			if($msg =~ /^\#\#\#\#\# PARSE FAILED \#\#\#\#\#/i) {
 				# the following lines are errors until we see the warnings section
@@ -191,6 +192,8 @@ sub run {
 				$severity = 'W';
 			} elsif($msg =~ /^Undeclared routine/i) {
 				# all rest are warnings...
+				$prefix = 'Undeclared routine: ';
+				$lineno = undef;
 				$severity = 'W';
 			} elsif($msg =~ /^\s+(.+?)\s+used at (\d+)/i) {
 				# record the line number
@@ -206,7 +209,7 @@ sub run {
 				last; 
 			}
 			if($lineno) {
-				push @{$issues}, { line => $lineno, msg => $msg, severity => $severity, };
+				push @{$issues}, { line => $lineno, msg => $prefix . $msg, severity => $severity, };
 			}
 		}
 		$self->{issues} = $issues;

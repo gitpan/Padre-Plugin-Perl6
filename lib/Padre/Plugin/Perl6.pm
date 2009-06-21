@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.43';
+our $VERSION   = '0.44';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -504,7 +504,7 @@ sub export_html {
 		when ($SNIPPET_HTML) { push @cmd, "--snippet-html=$tmp_out 2>$tmp_err"; }
 		default {
 			# default is full html
-			push @cmd, '--full-html=-';
+			push @cmd, "--full-html=$tmp_out 2>$tmp_err";
 		}
 	}
 

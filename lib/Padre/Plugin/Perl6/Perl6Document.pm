@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.43';
+our $VERSION = '0.44';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -40,43 +40,41 @@ sub colorize {
 	my $config = Padre::Plugin::Perl6::plugin_config();
 	if($config->{p6_highlight} || $self->{force_p6_highlight}) {
 	
-		unless($COLORIZE_TIMER) {
-			my $timer_id = Wx::NewId();
-			my $main = Padre->ide->wx->main;
-			$COLORIZE_TIMER = Wx::Timer->new($main, $timer_id);
-			Wx::Event::EVT_TIMER(
-				$main, $timer_id, 
-				sub { 
-					# temporary overlay using the parse tree given by parrot
-					my $colorizer = $config->{colorizer};
-					my $task;
-					if($colorizer eq 'STD') {
-						# Create an STD coloring task 
-						require Padre::Plugin::Perl6::Perl6StdColorizerTask;
-						$task = Padre::Plugin::Perl6::Perl6StdColorizerTask->new(
-							text => $self->text_with_one_nl,
-							editor => $self->editor,
-							document => $self);
-					} else {
-						# Create a PGE coloring task
-						require Padre::Plugin::Perl6::Perl6PgeColorizerTask;
-						$task = Padre::Plugin::Perl6::Perl6PgeColorizerTask->new(
-							text => $self->text_with_one_nl,
-							editor => $self->editor,
-							document => $self);
-					}
-					# hand off to the task manager
-					$task->schedule();
+		my $timer_id = Wx::NewId();
+		my $main = Padre->ide->wx->main;
+		$COLORIZE_TIMER = Wx::Timer->new($main, $timer_id);
+		Wx::Event::EVT_TIMER(
+			$main, $timer_id, 
+			sub { 
+				# temporary overlay using the parse tree given by parrot
+				my $colorizer = $config->{colorizer};
+				my $task;
+				if($colorizer eq 'STD') {
+					# Create an STD coloring task 
+					require Padre::Plugin::Perl6::Perl6StdColorizerTask;
+					$task = Padre::Plugin::Perl6::Perl6StdColorizerTask->new(
+						text => $self->text_with_one_nl,
+						editor => $self->editor,
+						document => $self);
+				} else {
+					# Create a PGE coloring task
+					require Padre::Plugin::Perl6::Perl6PgeColorizerTask;
+					$task = Padre::Plugin::Perl6::Perl6PgeColorizerTask->new(
+						text => $self->text_with_one_nl,
+						editor => $self->editor,
+						document => $self);
+				}
+				# hand off to the task manager
+				$task->schedule();
 
-					# and let us schedule that it is running properly or not
-					if($task->is_broken) {
-						# let us reschedule colorizing task to a later date..
-						$COLORIZE_TIMER->Stop;
-						$COLORIZE_TIMER->Start( $COLORIZE_TIMEOUT, Wx::wxTIMER_ONE_SHOT );
-					}
-				},
-			);
-		}
+				# and let us schedule that it is running properly or not
+				if($task->is_broken) {
+					# let us reschedule colorizing task to a later date..
+					$COLORIZE_TIMER->Stop;
+					$COLORIZE_TIMER->Start( $COLORIZE_TIMEOUT, Wx::wxTIMER_ONE_SHOT );
+				}
+			},
+		);
 
 		# let us reschedule colorizing task to a later date..
 		$COLORIZE_TIMER->Stop;
@@ -189,34 +187,191 @@ sub keywords {
 
 sub comment_lines_str { return '#' }
 
+#
+# Guess the new line for the current document
+# can return \r, \r\n, or \n
+#
+sub guess_newline {
+	my $self = shift;
+	
+	require Padre::Util;
+	my $doc_new_line_type = Padre::Util::newline_type($self->text_get);
+	my $new_line;
+	if($doc_new_line_type eq "WIN") {
+		$new_line = "\r\n";
+	} elsif($doc_new_line_type eq "MAC") {
+		$new_line = "\r";
+	} else {
+		#NONE, UNIX or MIXED
+		$new_line = "\n";
+	}
+	
+	return $new_line;
+}
+
+#
+# Tries to find quick fixes for errors in the current line
+#
+sub _find_quick_fix {
+	my ($self, $editor) = @_;
+	
+	my $new_line = $self->guess_newline;
+	my $current_line_no = $editor->GetCurrentLine;
+	
+	my @items = ();
+	print "Number of issues: " . scalar @{$self->{issues}} . "\n";
+	foreach my $issue ( @{$self->{issues}} ) {
+		my $issue_line_no = $issue->{line} - 1;
+		if($issue_line_no == $current_line_no) {
+			my $issue_msg = $issue->{msg};
+			my $comment_error_action = 0;
+			if($issue_msg =~ /^\s*Variable\s+(.+?)\s+is not predeclared at/i) {
+				
+				my $var_name = $1;
+
+				push @items, {
+					text     => sprintf( Wx::gettext("Insert declaration for %s"), $var_name),
+					listener => sub { 
+						#Insert a variable declaration before the start of the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						$editor->InsertText($line_start, "my $var_name;$new_line");
+					},
+				};
+				$comment_error_action = 1;
+			
+			} elsif($issue_msg =~ /^Undeclared routine:\s+(.+?)\s+used/i) {
+				
+				my $routine_name = $1;
+				#flow control keywords
+				my @flow_control_keywords = (
+					'for', 'given', 'if', 'loop', 'repeat', 
+					'unless', 'until', 'when', 'while',
+				);
+				foreach my $keyword (@flow_control_keywords) {
+					if($keyword eq $routine_name) {
+						push @items, {
+							text     => sprintf( Wx::gettext("Insert a space after %s"), $keyword ),
+							listener => sub { 
+								#Insert a space before brace
+								my $line_start = $editor->PositionFromLine( $current_line_no );
+								my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+								my $line_text  = $editor->GetTextRange($line_start, $line_end);
+								$line_text =~ s/$keyword\(/$keyword \(/;
+								$editor->SetSelection( $line_start, $line_end );
+								$editor->ReplaceSelection( $line_text );
+							},
+						};
+						
+						last;
+					}
+				}
+				push @items, {
+					text     => sprintf( Wx::gettext("Insert routine %s"), $routine_name),
+					listener => sub { 
+						#Insert an empty routine definition before the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						$editor->InsertText($line_start, 
+							"sub $routine_name {$new_line\t#XXX-implement$new_line}$new_line");
+					},
+				};
+				$comment_error_action = 1;
+			
+			} elsif($issue_msg =~ /^Obsolete use of . to concatenate strings/i) {
+
+				push @items, {
+					text     => Wx::gettext("Use ~ instead of . for string concatenation"),
+					listener => sub { 
+						#replace first '.' with '~' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\./~/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+				$comment_error_action = 1;
+			
+			} elsif($issue_msg =~ /^Obsolete use of -> to call a method/i) {
+
+				push @items, {
+					text     => Wx::gettext("Use . instead of -> for method call"),
+					listener => sub { 
+						#Replace first '->' with '.' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\-\>/\./;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+				$comment_error_action = 1;
+			
+			} elsif($issue_msg =~ /^Obsolete use of C\+\+ constructor syntax/i) {
+
+				push @items, {
+					text     => Wx::gettext("Use Perl 6 constructor syntax"),
+					listener => sub { 
+						#Replace first 'new Foo' with 'Foo.new' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						#new Point/new Point::Bar/new Point-In-Box
+						$line_text =~ s/new\s+([\w\-\:\:]+)?/$1.new/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+				$comment_error_action = 1;
+			
+			}
+
+			if($comment_error_action) {
+				push @items, {
+					text     => Wx::gettext("Comment error line"),
+					listener => sub {
+						#comment current error
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						$editor->InsertText($line_start, "#");
+					},
+				};
+			}
+			
+		}
+	}
+	
+	return @items;
+}
+
+#
+# Called when the user asks for Ecliptic's quick fix dialog via CTRL-~
+#
+sub event_on_quick_fix {
+	my ($self, $editor) = @_;
+
+	return $self->_find_quick_fix($editor);
+}
+
+#
+# Called when the user ask for the right-click menu (ALT-/ in Padre)
+#
 sub event_on_right_down {
 	my ($self, $editor, $menu, $event ) = @_;
-	#print "event_on_right_down @_\n";
-	my $pos = $editor->GetCurrentPos;
-	
-	return if not $self->{_parse_tree};
 
-	my @things;
-	foreach my $e (@{ $self->{_parse_tree} }) {
-		last if $e->{start} > $pos;
-		next if $e->{start} + $e->{length} < $pos;
-		push @things, {type => $e->{type}, str => $e->{str}};
-	}
-	return if not @things;
-	
+	my @items = $self->_find_quick_fix($editor);
+	print scalar @items . "\n";
 	my $main = $editor->main;
 	$menu->AppendSeparator;
+	for my $item (@items) {
 	
-#	my $perl6 = $menu->Append( -1, Wx::gettext("Perl 6 $pos") );
-#	Wx::Event::EVT_MENU(
-#			$main, $perl6,
-#				sub {
-#					print "$_[0]\n";
-#				},
-#			);
-	foreach my $thing (@things) {
-		$menu->Append( -1, sprintf( Wx::gettext("%s is Perl 6 %s "), $thing->{str}, $thing->{type} ) );
+		Wx::Event::EVT_MENU( 
+			$main,
+			$menu->Append( -1, $item->{text} ),
+			$item->{listener},
+		);
 	}
+
 	return;
 }
 

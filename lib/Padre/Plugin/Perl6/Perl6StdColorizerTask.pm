@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Padre::Task';
 
-our $VERSION = '0.43';
+our $VERSION = '0.44';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -190,6 +190,7 @@ sub run {
 			} elsif($msg =~ /^Potential difficulties/i) {
 				# all rest are warnings...
 				$severity = 'W';
+				$lineno = undef;
 			} elsif($msg =~ /^Undeclared routine/i) {
 				# all rest are warnings...
 				$prefix = 'Undeclared routine: ';

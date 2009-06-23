@@ -17,7 +17,7 @@ WriteMakefile
                            'Class::XSAccessor' => '1.02',
                            'Test::More' => '0.86',
                            'Test::NeedsDisplay' => '1.05',
-                           'Syntax::Highlight::Perl6' => '0.62'
+                           'Syntax::Highlight::Perl6' => '0.63'
                          }
         )
 ;

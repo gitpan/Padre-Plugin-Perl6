@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.44';
+our $VERSION   = '0.45';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -106,6 +106,11 @@ sub menu_plugins {
 	);
 	Wx::Event::EVT_MENU(
 		$main,
+		$file_menu->Append( -1, Wx::gettext("Script"), ),
+		sub { $self->_create_from_template('p6_script','p6') },
+	);	
+	Wx::Event::EVT_MENU(
+		$main,
 		$file_menu->Append( -1, Wx::gettext("Class"), ),
 		sub { $self->_create_from_template('p6_class','p6') },
 	);
@@ -131,7 +136,7 @@ sub menu_plugins {
 	);
 	Wx::Event::EVT_MENU(
 		$main,
-		$file_menu->Append( -1, Wx::gettext("Perl 6 in Perl 5"), ),
+		$file_menu->Append( -1, Wx::gettext("Inlined in Perl 5"), ),
 		sub { $self->_create_from_template('p6_inline_in_p5', 'p5') },
 	);
 
@@ -220,7 +225,9 @@ sub _create_from_template {
 	$editor->insert_from_file($file);
 
 	my $document = $editor->{Document};
-	$document->set_mimetype( $document->mime_type_by_extension($extension) );
+	my $mime_type = ($extension eq 'p6') ? 
+		'application/x-perl6' : 'application/x-perl'; 
+	$document->set_mimetype( $mime_type );
 	$document->editor->padre_setup;
 	$document->rebless;
 

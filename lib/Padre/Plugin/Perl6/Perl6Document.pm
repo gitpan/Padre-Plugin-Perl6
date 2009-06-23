@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.44';
+our $VERSION = '0.45';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -219,25 +219,26 @@ sub _find_quick_fix {
 	my $current_line_no = $editor->GetCurrentLine;
 	
 	my @items = ();
-	print "Number of issues: " . scalar @{$self->{issues}} . "\n";
+	my $num_issues = scalar @{$self->{issues}};
+	print "Number of issues: $num_issues\n";
+	my $comment_error_added = 0;
 	foreach my $issue ( @{$self->{issues}} ) {
 		my $issue_line_no = $issue->{line} - 1;
 		if($issue_line_no == $current_line_no) {
 			my $issue_msg = $issue->{msg};
-			my $comment_error_action = 0;
-			if($issue_msg =~ /^\s*Variable\s+(.+?)\s+is not predeclared at/i) {
+			$issue_msg =~ s/^\s+|\s+$//g;
+			if($issue_msg =~ /^Variable\s+(.+?)\s+is not predeclared at/i) {
 				
 				my $var_name = $1;
 
 				push @items, {
-					text     => sprintf( Wx::gettext("Insert declaration for %s"), $var_name),
+					text     => sprintf( Wx::gettext('Insert declaration for %s'), $var_name),
 					listener => sub { 
 						#Insert a variable declaration before the start of the current line
 						my $line_start = $editor->PositionFromLine( $current_line_no );
 						$editor->InsertText($line_start, "my $var_name;$new_line");
 					},
 				};
-				$comment_error_action = 1;
 			
 			} elsif($issue_msg =~ /^Undeclared routine:\s+(.+?)\s+used/i) {
 				
@@ -250,7 +251,7 @@ sub _find_quick_fix {
 				foreach my $keyword (@flow_control_keywords) {
 					if($keyword eq $routine_name) {
 						push @items, {
-							text     => sprintf( Wx::gettext("Insert a space after %s"), $keyword ),
+							text     => sprintf( Wx::gettext('Insert a space after %s'), $keyword ),
 							listener => sub { 
 								#Insert a space before brace
 								my $line_start = $editor->PositionFromLine( $current_line_no );
@@ -266,7 +267,7 @@ sub _find_quick_fix {
 					}
 				}
 				push @items, {
-					text     => sprintf( Wx::gettext("Insert routine %s"), $routine_name),
+					text     => sprintf( Wx::gettext('Insert routine %s'), $routine_name),
 					listener => sub { 
 						#Insert an empty routine definition before the current line
 						my $line_start = $editor->PositionFromLine( $current_line_no );
@@ -274,12 +275,11 @@ sub _find_quick_fix {
 							"sub $routine_name {$new_line\t#XXX-implement$new_line}$new_line");
 					},
 				};
-				$comment_error_action = 1;
 			
 			} elsif($issue_msg =~ /^Obsolete use of . to concatenate strings/i) {
 
 				push @items, {
-					text     => Wx::gettext("Use ~ instead of . for string concatenation"),
+					text     => Wx::gettext('Use ~ instead of . for string concatenation'),
 					listener => sub { 
 						#replace first '.' with '~' in the current line
 						my $line_start = $editor->PositionFromLine( $current_line_no );
@@ -290,12 +290,11 @@ sub _find_quick_fix {
 						$editor->ReplaceSelection( $line_text );
 					},
 				};
-				$comment_error_action = 1;
 			
 			} elsif($issue_msg =~ /^Obsolete use of -> to call a method/i) {
 
 				push @items, {
-					text     => Wx::gettext("Use . instead of -> for method call"),
+					text     => Wx::gettext('Use . for method call'),
 					listener => sub { 
 						#Replace first '->' with '.' in the current line
 						my $line_start = $editor->PositionFromLine( $current_line_no );
@@ -306,12 +305,11 @@ sub _find_quick_fix {
 						$editor->ReplaceSelection( $line_text );
 					},
 				};
-				$comment_error_action = 1;
 			
 			} elsif($issue_msg =~ /^Obsolete use of C\+\+ constructor syntax/i) {
 
 				push @items, {
-					text     => Wx::gettext("Use Perl 6 constructor syntax"),
+					text     => Wx::gettext('Use Perl 6 constructor syntax'),
 					listener => sub { 
 						#Replace first 'new Foo' with 'Foo.new' in the current line
 						my $line_start = $editor->PositionFromLine( $current_line_no );
@@ -323,19 +321,314 @@ sub _find_quick_fix {
 						$editor->ReplaceSelection( $line_text );
 					},
 				};
-				$comment_error_action = 1;
+			
+			} elsif($issue_msg =~ /^Obsolete use of C-style "for \(;;\)" loop/i) {
+
+				push @items, {
+					text     => Wx::gettext('Use loop (;;) for looping'),
+					listener => sub { 
+						#Replace first 'for (;;)' with 'loop (;;)' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/for\s+\(/loop (/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+				
+			} elsif($issue_msg =~ /^Obsolete use of \[-1\] subscript to access final element/i) {
+
+				push @items, {
+					text     => Wx::gettext('Use [*-1] to access final element'),
+					listener => sub { 
+						#Replace first '[-1]' with '[*-1]' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\[\s*-1\s*\]/[*-1]/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of rand\(N\)/i) {
+			
+				push @items, {
+					text     => Wx::gettext('Use N.pick for a random number'),
+					listener => sub { 
+						#Replace rand(N) with N.pick' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/rand\s*\(\s*(.+?)\s*\)/$1.pick/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+
+				push @items, {
+					text     => Wx::gettext('Use (1..N).pick for a random number'),
+					listener => sub { 
+						#Replace rand(N) with (1..N).pick' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/rand\s*\(\s*(.+?)\s*\)/(1..$1).pick/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+				
+			} elsif($issue_msg =~ /^Please use \.\.\* for indefinite range/i) {
+
+				push @items, {
+					text     => Wx::gettext('Use [N..*] for indefinite range'),
+					listener => sub { 
+						#Replace first '[1..]' with '[1..*]' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\[\s*(.+?)\.\.\s*\]/\[$1..*\]/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Please use \!\! rather than \:\:/i) {
+
+				push @items, {
+					text     => Wx::gettext('Use !! for conditional operator else clause'),
+					listener => sub { 
+						#Replace first '!!' with '::' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\:\:/!!/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Precedence too loose within \?\?\!\!/i) {
+
+				# Fixes errors like:
+				# 42 ?? 1,2,3 Z 4,5,6 !! 1,2,3 X 4,5,6;
+				# into:
+				# 42 ?? (1,2,3 Z 4,5,6) !! 1,2,3 X 4,5,6;
+				push @items, {
+					text     => Wx::gettext('Use ?? (...) !! to avoid precedence bugs'),
+					listener => sub { 
+						#Replace '?? ... !!' with '?? (...) !!' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						#XXX- handle multiple lines...
+						$line_text =~ s/\?\?(.+?)\!\!/??($1)!!/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of \?\: for the conditional operator/i) {
+
+				# Fixes the following:
+				# (1 == 1) ? 1 : 2
+				# into:
+				# (1 == 1) ?? 1 !! 2
+				push @items, {
+					text     => Wx::gettext('Use ?? !! for the conditional operator'),
+					listener => sub { 
+						#Replace first '? ... :' with '?? ... !!' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\?\s*(.+?)\s*\:/?? $1 !!/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Possible obsolete use of \.\= as append operator/i) {
+
+				# Fixes the following:
+				# $string .= "a";
+				# into:
+				# $string ~= "a";
+				push @items, {
+					text     => Wx::gettext('Use ~= for string concatenation'),
+					listener => sub { 
+						#Replace first '=.' with '=~' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\.\=/~=/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of \=\~ to do pattern matching/i) {
+
+				# Fixes the following:
+				# $string =~ /abc/;
+				# into:
+				# $string ~~ /abc/;
+				push @items, {
+					text     => Wx::gettext('Use ~~ for pattern matching'),
+					listener => sub { 
+						#Replace first '=.' with '=~' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\=\~/~~/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of \!\~ to do negated pattern matching/i) {
+
+				# Fixes the following:
+				# $string !~ /abc/;
+				# into:
+				# $string !~~ /abc/;
+				push @items, {
+					text     => Wx::gettext('Use !~~ for negated pattern matching'),
+					listener => sub { 
+						#Replace first '!~' with '!~~' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\!\~/!~~/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of >> to do right shift/i) {
+
+				# Fixes the following:
+				# 2 >> 1;
+				# into:
+				# 2 +> 1;
+				push @items, {
+					text     => Wx::gettext('Use +> for numeric right shift'),
+					listener => sub { 
+						#Replace first '>>' with '+>' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\>\>/+>/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+				# Fixes the following:
+				# 100 >> 1;
+				# into:
+				# 100 ~> 1;
+				push @items, {
+					text     => Wx::gettext('Use ~> for string right shift'),
+					listener => sub { 
+						#Replace first '>>' with '~>' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\>\>/~>/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			} elsif($issue_msg =~ /^Obsolete use of << to do left shift/i) {
+
+				# Fixes the following:
+				# 2 << 1;
+				# into:
+				# 2 +< 1;
+				push @items, {
+					text     => Wx::gettext('Use +< for numeric left shift'),
+					listener => sub { 
+						#Replace first '<<' with '+<' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\<\</+</;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+				# Fixes the following:
+				# 100 << 1;
+				# into:
+				# 100 ~< 1;
+				push @items, {
+					text     => Wx::gettext('Use ~< for string left shift'),
+					listener => sub { 
+						#Replace first '<<' with '~<' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\<\</~</;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+
+			} elsif($issue_msg =~ /^Obsolete use of \$\@ variable as eval error/i) {
+
+				# Fixes the following:
+				# $@;
+				# into:
+				# $!;
+				push @items, {
+					text     => Wx::gettext('Use $! for eval errors'),
+					listener => sub { 
+						#Replace first '$@' with '$!' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\$\@/\$!/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
+			
+			} elsif($issue_msg =~ /^Obsolete use of \$\] variable/i) {
+
+				# Fixes the following:
+				# $];
+				# into:
+				# $::PERL_VERSION;
+				push @items, {
+					text     => Wx::gettext('Use $::PERL_VERSION'),
+					listener => sub { 
+						#Replace first '$]' with '$::PERL_VERSION' in the current line
+						my $line_start = $editor->PositionFromLine( $current_line_no );
+						my $line_end   = $editor->GetLineEndPosition( $current_line_no );
+						my $line_text  = $editor->GetTextRange($line_start, $line_end);
+						$line_text =~ s/\$\]/\$::PERL_VERSION/;
+						$editor->SetSelection( $line_start, $line_end );
+						$editor->ReplaceSelection( $line_text );
+					},
+				};
 			
 			}
 
-			if($comment_error_action) {
+			if(not $comment_error_added) {
 				push @items, {
-					text     => Wx::gettext("Comment error line"),
+					text     => Wx::gettext('Comment error line'),
 					listener => sub {
-						#comment current error
+						# comment current error by putting a hash and a space
+						# since #( is an embedded comment in Perl 6!
+						# see S02:166
 						my $line_start = $editor->PositionFromLine( $current_line_no );
-						$editor->InsertText($line_start, "#");
+						$editor->InsertText($line_start, '# ');
 					},
 				};
+				$comment_error_added = 1;
 			}
 			
 		}

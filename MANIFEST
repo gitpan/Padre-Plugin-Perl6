@@ -11,13 +11,6 @@ lib/Padre/Plugin/Perl6/Preferences.pm
 lib/Padre/Plugin/Perl6/S29-functions.pod
 lib/Padre/Plugin/Perl6/share/icons/camelia-big.png
 lib/Padre/Plugin/Perl6/share/icons/camelia.png
-lib/Padre/Plugin/Perl6/share/locale/Perl6-ar.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-es-es.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-fr-fr.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-nl-nl.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-pl.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-pt-br.mo
-lib/Padre/Plugin/Perl6/share/locale/Perl6-zh-tw.mo
 lib/Padre/Plugin/Perl6/share/templates/p6_class.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_grammar.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_inline_in_p5.p5

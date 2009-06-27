@@ -4,7 +4,7 @@ use strict;
 use warnings;
 use base 'Padre::Task';
 
-our $VERSION = '0.46';
+our $VERSION = '0.47';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -204,7 +204,7 @@ sub run {
 				$lineno = $1;
 			} elsif($msg =~ /^Can't locate object method ".+?" via package "STD"/i) {
 				# STD lex cache is corrupt...
-				$msg = Wx::gettext("'STD Lex Cache' is corrupt. Please click on Plugins/Perl6/Cleanup STD Lex Cache and then re-open the file.");
+				$msg = Wx::gettext("'STD Lex Cache' folder is corrupt. Please click on 'Plugins/Perl6/Cleanup STD Lex Cache' and then re-open the file.");
 				push @{$issues}, { line => 1, msg => $msg, severity => 'E', };
 				# no need to continue collecting errors...
 				last; 

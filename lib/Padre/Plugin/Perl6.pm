@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.48';
+our $VERSION   = '0.49';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -82,11 +82,6 @@ sub plugin_enable {
 	# update configuration attribute
 	$self->config( $config );
 	
-	# let us parse some S29-functions.pod documentation (safely)
-	eval {
-		$self->build_perl6_doc;
-	};
-	warn $@ if $@;
 	return 1;
 }
 
@@ -181,7 +176,7 @@ sub menu_plugins {
 	# Perl6 S29 documentation
 	Wx::Event::EVT_MENU(
 		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Show Perl 6 Help\tF2"), ),
+		$self->{menu}->Append( -1, Wx::gettext("Perl 6 Help\tF2"), ),
 		sub { $self->show_perl6_doc; },
 	);
 
@@ -246,12 +241,16 @@ sub show_about {
 	my $main = shift;
 
 	require Syntax::Highlight::Perl6;
+	require App::Grok;
 	
 	my $about = Wx::AboutDialogInfo->new;
 	$about->SetName("Padre::Plugin::Perl6");
 	$about->SetDescription(
-		Wx::gettext("Perl 6 coloring is based on\n") .
-		Wx::gettext("Syntax::Highlight::Perl6 version ") . $Syntax::Highlight::Perl6::VERSION . "\n"
+		Wx::gettext("This plugin enables useful Perl 6 features on Padre IDE.") . "\n" .
+		Wx::gettext("It integrates coloring and easy access to Perl 6 help documents.") . "\n\n" .
+		Wx::gettext("The following modules are used:") . "\n" .
+		"Syntax::Highlight::Perl6 " . $Syntax::Highlight::Perl6::VERSION . "\n" .
+		"App::Grok " . $App::Grok::VERSION . "\n"
 	);
 	$about->SetVersion($VERSION);
 
@@ -332,78 +331,14 @@ sub cleanup_std_lex_cache {
 	return;
 }
 
-#
-# Original code idea from masak++ (http://use.perl.org/~masak/journal/38212)
-#
-sub build_perl6_doc {
-	my $self = shift;
-
-	# open the S29 file
-	my $s29_file = File::Spec->join(File::Basename::dirname(__FILE__),
-		'Perl6/S29-functions.pod');
-	require IO::File;
-	my $S29 = IO::File->new(Cwd::realpath($s29_file))
-				or croak "Cannot open '$s29_file' $!";
-
-	# read until you find 'Function Packages'
-	until (<$S29> =~ /Function Packages/) {}
-
-	# parse the rest of S29 looking for Perl6 function documentation
-	$self->{perl6_functions} = ();
-	my $function_name = undef;
-	while (my $line = <$S29>) {
-		if ($line =~ /^=(\S+) (.*)/x) {
-			if ($1 eq 'item') {
-				# Found Perl6 function name
-				$function_name = $2;
-				$function_name =~ s/^\s+//;
-			} else {
-				$function_name = undef;
-			}
-		} elsif($function_name) {
-			# Adding documentation to the function name
-			$self->{perl6_functions}{$function_name} .= $line;
-		}
-	}
-
-	# trim blank lines at the beginning and the end
-	foreach my $function_name (keys %{$self->{perl6_functions}}) {
-		my $docs = $self->{perl6_functions}{$function_name};
-		$docs =~ s/^(\s|\n)+//g;
-		$docs =~ s/(\s|\n)+$//g;
-		$self->{perl6_functions}{$function_name} = $docs;
-	}
-
-}
-
 sub show_perl6_doc {
 	my $self = shift;
-	my $main   = $self->main;
-
-	if(! $self->{perl6_functions}) {
-		Wx::MessageBox(
-			'Perl 6 S29 is not available',
-			'Error',
-			Wx::wxOK,
-			$main,
-		);
-		return;
-	}
 
 	# find the word under the current cursor position
-	my $doc = Padre::Current->document;
-	if($doc) {
+	my $topic = '';
+	my $doc = $self->current->document;
+	if($doc && $doc->get_mimetype eq q{application/x-perl6}) {
 		# make sure it is a Perl6 document
-		if($doc->get_mimetype ne q{application/x-perl6}) {
-			Wx::MessageBox(
-				'Not a Perl 6 file',
-				'Operation cancelled',
-				Wx::wxOK,
-				$main,
-			);
-			return;
-		}
-
 		my $editor = $doc->editor;
 		my $lineno = $editor->GetCurrentLine();
 		my $line = $editor->GetLine($lineno);
@@ -416,19 +351,14 @@ sub show_perl6_doc {
 			}
 		}
 		if($current_word =~ /^.*?(\w+)/) {
-			my $function_name = $1;
-			print "Looking up: " . $function_name . "\n";
-			my $function_doc = $self->{perl6_functions}{$function_name};
-			if($function_doc) {
-				#launch default browser to see the S29 function documentation
-				require URI::Escape;
-				Wx::LaunchDefaultBrowser(
-					q{http://perlcabal.org/syn/S29.html#} .
-					URI::Escape::uri_escape_utf8($function_name));
-			}
+			$topic = $1;
 		}
-
 	}
+
+	require Padre::Plugin::Perl6::Perl6HelpDialog;
+	my $dialog = Padre::Plugin::Perl6::Perl6HelpDialog->new($self, topic => $topic);
+	$dialog->ShowModal();
+
 }
 
 sub highlight {

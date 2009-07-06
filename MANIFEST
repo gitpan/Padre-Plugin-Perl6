@@ -3,12 +3,12 @@ Changes
 lib/Padre/Plugin/Perl6.pm
 lib/Padre/Plugin/Perl6/p6tokens.p5
 lib/Padre/Plugin/Perl6/Perl6Document.pm
+lib/Padre/Plugin/Perl6/Perl6HelpDialog.pm
 lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
 lib/Padre/Plugin/Perl6/Perl6PgeColorizerTask.pm
 lib/Padre/Plugin/Perl6/Perl6StdColorizerTask.pm
 lib/Padre/Plugin/Perl6/Perl6SyntaxCheckerTask.pm
 lib/Padre/Plugin/Perl6/Preferences.pm
-lib/Padre/Plugin/Perl6/S29-functions.pod
 lib/Padre/Plugin/Perl6/share/icons/camelia-big.png
 lib/Padre/Plugin/Perl6/share/icons/camelia.png
 lib/Padre/Plugin/Perl6/share/locale/Perl6-ar.po

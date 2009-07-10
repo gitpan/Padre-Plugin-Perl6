@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.49';
+our $VERSION = '0.50';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -155,34 +155,6 @@ sub _check_syntax_internals {
 		return $task->{syntax_check};
 	}
 	return;
-}
-
-sub keywords {
-	my $self = shift;
-	if (! defined $self->{keywords}) {
-		#Get keywords from Plugin object
-		my $manager = Padre->ide->plugin_manager;
-		if($manager) {
-			my $plugin = $manager->plugins->{'Perl6'};
-			if($plugin) {
-				my %perl6_functions = %{$plugin->object->{perl6_functions}};
-				foreach my $function (keys %perl6_functions) {
-					my $docs = $perl6_functions{$function};
-					# limit calltip size to n-lines
-					my @lines = split /\n/, $docs;
-					if(scalar @lines > $CALLTIP_DISPLAY_COUNT) {
-						$docs = (join "\n", @lines[0..$CALLTIP_DISPLAY_COUNT-1]) .
-							"\n...";
-					}
-					$self->{keywords}->{$function} = {
-						'cmd' => $docs,
-						'exp' => '',
-					};
-				}
-			 }
-		}
-	}
-	return $self->{keywords};
 }
 
 # In Perl 6 the best way to comment the current error reliably is 

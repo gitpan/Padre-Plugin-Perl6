@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 # package exports and version
-our $VERSION = '0.49';
+our $VERSION = '0.50';
 our @EXPORT_OK = ();
 
 # module imports
@@ -23,6 +23,7 @@ use Class::XSAccessor accessors => {
 	_help_viewer       => '_help_viewer',        # HTML Help Viewer
 	_plugin            => '_plugin',             # plugin object
 	_topic             => '_topic',              # default help topic
+	_grok              => '_grok',               # Perl 6 documentation reader instance 
 };
 
 # -- constructor
@@ -35,7 +36,7 @@ sub new {
 	my $self = $class->SUPER::new(
 		$main,
 		-1,
-		Wx::gettext('Perl 6 Help (Powered by App::Grok)'),
+		Wx::gettext('Perl 6 Help (Powered by grok)'),
 		Wx::wxDefaultPosition,
 		Wx::wxDefaultSize,
 		Wx::wxDEFAULT_FRAME_STYLE|Wx::wxTAB_TRAVERSAL,
@@ -71,9 +72,7 @@ sub display_help_in_viewer {
 
 		if($help_target) {
 			eval {
-				require App::Grok;
-				my $grok = App::Grok->new;
-				$help_html = $grok->render_target($help_target,'xhtml');
+				$help_html = $self->_grok->render_target($help_target,'xhtml');
 			};
 		}
 	}
@@ -216,8 +215,31 @@ sub _search() {
 	# Generate a sorted file-list based on filename
 	eval {
 		require App::Grok;
-		my $grok = App::Grok->new;
-		my @targets_index = sort $grok->target_index();
+		$self->_grok(App::Grok->new);
+		my @targets_index = sort $self->_grok->target_index();
+		$self->_targets_index( \@targets_index ); 
+
+		#extend grok so it knows about Perl 6 table index
+		my $filename = File::Spec->catdir( 
+			Cwd::realpath( File::Basename::dirname(__FILE__) ),
+			'perl6_table_index.pod' );
+		open FILE, $filename or die "Cannot open $filename\n";    
+		until (<FILE> =~ /=head1 Table index/) {}
+		my $item = undef;
+		while(my $line = <FILE>) {
+			if($line =~ /^=head2\s+(.+?)$/i) {
+				$item = $1;
+			} elsif($item) {
+				if(not $self->_grok->{functions}{$item}) {
+					my @empty = ($item,'');
+					$self->_grok->{functions}{$item} = \@empty;
+				}
+				$self->_grok->{functions}{$item}[1] .= $line;
+			}
+		}
+		close FILE;
+		
+		@targets_index = sort $self->_grok->target_index();
 		$self->_targets_index( \@targets_index ); 
 	};
 	

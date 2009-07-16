@@ -1,6 +1,6 @@
 ---
 name: Padre-Plugin-Perl6
-version: 0.50
+version: 0.51
 author:
   - Ahmad M. Zawawi and Gabor Szabo
 abstract: Padre plugin for Perl6
@@ -10,7 +10,7 @@ resources:
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/
 requires:
-  App::Grok: 0.11
+  App::Grok: 0.13
   Class::XSAccessor: 1.02
   File::Which: 0.05
   Padre: 0.33
@@ -24,32 +24,32 @@ build_requires:
 provides:
   Padre::Plugin::Perl6:
     file: lib/Padre/Plugin/Perl6.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6Document:
     file: lib/Padre/Plugin/Perl6/Perl6Document.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6HelpDialog:
     file: lib/Padre/Plugin/Perl6/Perl6HelpDialog.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6OutlineTask:
     file: lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6PgeColorizerTask:
     file: lib/Padre/Plugin/Perl6/Perl6PgeColorizerTask.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6StdColorizerTask:
     file: lib/Padre/Plugin/Perl6/Perl6StdColorizerTask.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Perl6SyntaxCheckerTask:
     file: lib/Padre/Plugin/Perl6/Perl6SyntaxCheckerTask.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Preferences:
     file: lib/Padre/Plugin/Perl6/Preferences.pm
-    version: 0.50
+    version: 0.51
   Padre::Plugin::Perl6::Util:
     file: lib/Padre/Plugin/Perl6/Util.pm
-    version: 0.50
-generated_by: Module::Build version 0.280801
+    version: 0.51
+generated_by: Module::Build version 0.3
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

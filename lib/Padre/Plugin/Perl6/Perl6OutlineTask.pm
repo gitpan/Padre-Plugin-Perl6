@@ -3,7 +3,7 @@ package Padre::Plugin::Perl6::Perl6OutlineTask;
 use strict;
 use warnings;
 
-our $VERSION = '0.52';
+our $VERSION = '0.53';
 
 use base 'Padre::Task::Outline';
 
@@ -348,7 +348,7 @@ using L<Padre::TaskManager>.
 
 =head1 AUTHOR
 
-Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
 Gabor Szabo L<http://szabgab.com/>
 

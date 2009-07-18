@@ -10,7 +10,7 @@ use Class::XSAccessor accessors => {
 	_colorizer_list   => '_colorizer_list',    # colorizer list box
 };
 
-our $VERSION = '0.52';
+our $VERSION = '0.53';
 
 use Padre::Current;
 use Padre::Wx ();
@@ -162,7 +162,7 @@ __END__
 
 =head1 AUTHOR
 
-Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
 Gabor Szabo L<http://szabgab.com/>
 

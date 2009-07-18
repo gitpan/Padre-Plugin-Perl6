@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.52';
+our $VERSION   = '0.53';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -171,6 +171,27 @@ sub menu_plugins {
 		},
 	);
 
+	# Rakudo sub menu
+	my $rakudo_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("Rakudo"), $rakudo_menu),
+		sub {},
+	);
+	# Generate Perl 6 Executable
+	Wx::Event::EVT_MENU(
+		$main,
+		$rakudo_menu->Append( -1, Wx::gettext("Perl 6 Executable"), ),
+		sub { $self->generate_p6_exe; },
+	);
+
+	# Generate Perl 6 PIR
+	Wx::Event::EVT_MENU(
+		$main,
+		$rakudo_menu->Append( -1, Wx::gettext("Perl 6 PIR"), ),
+		sub { $self->generate_p6_pir; },
+	);
+
 	# Export sub menu
 	my $export_menu = Wx::Menu->new();
 	Wx::Event::EVT_MENU(
@@ -178,20 +199,6 @@ sub menu_plugins {
 		$self->{menu}->Append( -1, Wx::gettext("Export..."), $export_menu),
 		sub {},
 	);
-	# Generate Perl 6 Executable
-	Wx::Event::EVT_MENU(
-		$main,
-		$export_menu->Append( -1, Wx::gettext("Perl 6 Executable"), ),
-		sub { $self->generate_p6_exe; },
-	);
-
-	# Generate Perl 6 PIR
-	Wx::Event::EVT_MENU(
-		$main,
-		$export_menu->Append( -1, Wx::gettext("Perl 6 PIR"), ),
-		sub { $self->generate_p6_pir; },
-	);
-	
 	# Export into HTML
 	Wx::Event::EVT_MENU(
 		$main,
@@ -350,8 +357,11 @@ sub cleanup_std_lex_cache {
 
 	my $main   = $self->main;
 
-	my $LEX_STD_DIR = 'lex/STD';
-	if(! -d $LEX_STD_DIR) {
+	my $tmp_dir = File::Spec->catfile( 
+		Padre::Constant::PLUGIN_DIR, 
+		'Padre-Plugin-Perl6' );
+	my $LEX_STD_DIR = "$tmp_dir/lex/STD";
+	if(not -d $LEX_STD_DIR) {
 		Wx::MessageBox(
 			Wx::gettext("Cannot find STD.pm lex cache"),
 			'Error',
@@ -879,7 +889,7 @@ After installation when you run Padre there should be a menu option Plugins/Perl
 
 =head1 AUTHOR
 
-Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
 Gabor Szabo L<http://szabgab.com/>
 

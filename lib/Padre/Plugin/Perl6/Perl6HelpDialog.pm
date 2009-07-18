@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 # package exports and version
-our $VERSION = '0.52';
+our $VERSION = '0.53';
 our @EXPORT_OK = ();
 
 # module imports
@@ -263,7 +263,7 @@ __END__
 
 =head1 AUTHOR
 
-Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
 
 Gabor Szabo L<http://szabgab.com/>
 

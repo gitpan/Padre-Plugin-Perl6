@@ -2,7 +2,6 @@ Build.PL
 Changes
 lib/Padre/Plugin/Perl6.pm
 lib/Padre/Plugin/Perl6/p6tokens.p5
-lib/Padre/Plugin/Perl6/perl6_table_index.pod
 lib/Padre/Plugin/Perl6/Perl6Document.pm
 lib/Padre/Plugin/Perl6/Perl6HelpDialog.pm
 lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
@@ -28,10 +27,10 @@ lib/Padre/Plugin/Perl6/share/templates/p6_role.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_script.p6
 lib/Padre/Plugin/Perl6/Util.pm
 MANIFEST			This list of files
-parse_perl6_table_index.pl
 README
 t/00-load.t
 t/01-compile.t
 t/02-pod.t
+t/03-copyright.t
 Makefile.PL
 META.yml

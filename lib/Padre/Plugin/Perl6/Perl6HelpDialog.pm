@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 # package exports and version
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 our @EXPORT_OK = ();
 
 # module imports
@@ -258,3 +258,18 @@ sub _update_list_box() {
 
 
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+
+Gabor Szabo L<http://szabgab.com/>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2008-2009 Padre Developers as in Perl6.pm
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl 5 itself.

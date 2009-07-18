@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.51';
+our $VERSION   = '0.52';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -135,12 +135,48 @@ sub menu_plugins {
 		sub { $self->_create_from_template('p6_inline_in_p5', 'p5') },
 	);
 
+	# Refactor sub menu
+	my $refactor_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("Refactor..."), $refactor_menu),
+		sub {  },
+	);
+
+	# Find variable declaration
+	Wx::Event::EVT_MENU(
+		$main,
+		$refactor_menu->Append( -1, Wx::gettext("Find variable declaration"), ),
+		sub { 
+			Wx::MessageBox(
+				Wx::gettext('Perl 6 refactoring support is coming soon...'),
+				Wx::gettext('Error'),
+				Wx::wxOK,
+				$main, 
+			);
+		},
+	);
+	
+	# Rename variable
+	Wx::Event::EVT_MENU(
+		$main,
+		$refactor_menu->Append( -1, Wx::gettext("Rename variable"), ),
+		sub { 
+			Wx::MessageBox(
+				Wx::gettext('Perl 6 refactoring support is coming soon...'),
+				Wx::gettext('Error'),
+				Wx::wxOK,
+				$main, 
+			);
+		},
+	);
+
 	# Export sub menu
 	my $export_menu = Wx::Menu->new();
 	Wx::Event::EVT_MENU(
 		$main,
 		$self->{menu}->Append( -1, Wx::gettext("Export..."), $export_menu),
-		sub { $self->export_html($FULL_HTML); },
+		sub {},
 	);
 	# Generate Perl 6 Executable
 	Wx::Event::EVT_MENU(
@@ -173,17 +209,58 @@ sub menu_plugins {
 		sub { $self->export_html($SNIPPET_HTML); },
 	);
 
-	# Perl6 S29 documentation
+	$self->{menu}->AppendSeparator;
+
+	# Perl6 grok-based Help dialog doc reader
 	Wx::Event::EVT_MENU(
 		$main,
 		$self->{menu}->Append( -1, Wx::gettext("Perl 6 Help\tF2"), ),
 		sub { $self->show_perl6_doc; },
 	);
 
+	# More Help? sub menu
+	my $more_help_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("More Help?"), $more_help_menu),
+		sub { },
+	);
+
+	# Goto #padre link
+	Wx::Event::EVT_MENU(
+		$main,
+		$more_help_menu->Append( -1, Wx::gettext("#padre for Padre Help"), ),
+		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=padre" ); },
+	);
+
+	# Goto #perl6 link
+	Wx::Event::EVT_MENU(
+		$main,
+		$more_help_menu->Append( -1, Wx::gettext("#perl6 for Perl 6 Help"), ),
+		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=perl6" ); },
+	);
+
+	# Perl 6 projects link
+	Wx::Event::EVT_MENU(
+		$main,
+		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Projects"), ),
+		sub { Wx::LaunchDefaultBrowser("http://perl6-projects.org" ); },
+	);
+
+	$self->{menu}->AppendSeparator;
+
+	# Maintenance
+	my $maintenance_menu = Wx::Menu->new();
+	Wx::Event::EVT_MENU(
+		$main,
+		$self->{menu}->Append( -1, Wx::gettext("Maintenance"), $maintenance_menu),
+		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=padre" ); },
+	);
+
 	# Cleanup STD.pm lex cache
 	Wx::Event::EVT_MENU(
 		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Cleanup STD.pm Lex Cache"), ),
+		$maintenance_menu->Append( -1, Wx::gettext("Cleanup STD.pm Lex Cache"), ),
 		sub { $self->cleanup_std_lex_cache; },
 	);
 
@@ -794,11 +871,11 @@ __END__
 
 =head1 NAME
 
-Padre::Plugin::Perl6 - Padre plugin for Perl6
+Padre::Plugin::Perl6 - Padre plugin for Perl 6
 
 =head1 SYNOPSIS
 
-After installation when you run Padre there should be a menu option Plugins/Perl6.
+After installation when you run Padre there should be a menu option Plugins/Perl 6.
 
 =head1 AUTHOR
 
@@ -806,16 +883,13 @@ Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
 
 Gabor Szabo L<http://szabgab.com/>
 
-=head1 COPYRIGHT
+=head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Gabor Szabo. L<http://szabgab.com/> and
-Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+Copyright 2008-2009 Padre Developers as in Perl6.pm
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl 5 itself.
 
 The Camelia image is copyright 2009 by Larry Wall.  Permission to use
 is granted under the Artistic License 2.0, or any subsequent version
 of the Artistic License.
-
-=head1 LICENSE
-
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.

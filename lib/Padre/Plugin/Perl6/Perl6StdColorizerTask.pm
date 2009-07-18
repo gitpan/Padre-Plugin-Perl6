@@ -3,8 +3,9 @@ package Padre::Plugin::Perl6::Perl6StdColorizerTask;
 use strict;
 use warnings;
 use base 'Padre::Task';
+use Scalar::Util ();
 
-our $VERSION = '0.51';
+our $VERSION = '0.52';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -17,15 +18,9 @@ sub prepare {
 	# it is not running yet.
 	$self->{broken} = 0;
 	
-	# put editor into main-thread-only storage
-	$self->{main_thread_only} ||= {};
-	my $document = $self->{document} || $self->{main_thread_only}{document};
-	my $editor = $self->{editor} || $self->{main_thread_only}{editor};
-	delete $self->{document};
-	delete $self->{editor};
-	$self->{main_thread_only}{document} = $document;
-	$self->{main_thread_only}{editor} = $editor;
-
+	return if $self->{_editor};
+	$self->{_editor} = Scalar::Util::refaddr(Padre::Current->editor);
+	
 	# assign a place in the work queue
 	if($thread_running) {
 		# single thread instance at a time please. aborting...
@@ -73,8 +68,20 @@ sub finish {
 	my $self = shift;
 	my $mainwindow = shift;
 
-	my $doc = $self->{main_thread_only}{document};
-	my $editor = $self->{main_thread_only}{editor};
+	my $editor = Padre::Current->editor;
+	my $addr = delete $self->{_editor};
+	if (not $addr or not $editor or $addr ne Scalar::Util::refaddr($editor)) {
+		# shall we try to locate the editor ?
+		$thread_running = 0;
+		return 1;
+	}
+
+	my $doc = Padre::Current->document;
+	if (not $doc) {
+		$thread_running = 0;
+		return 1;
+	}
+	
 	if($self->{tokens}) {
 		$doc->remove_color;
 		my @tokens = @{$self->{tokens}};
@@ -204,7 +211,7 @@ sub run {
 				$lineno = $1;
 			} elsif($msg =~ /^Can't locate object method ".+?" via package "STD"/i) {
 				# STD lex cache is corrupt...
-				$msg = Wx::gettext("'STD Lex Cache' folder is corrupt. Please click on 'Plugins/Perl6/Cleanup STD Lex Cache' and then re-open the file.");
+				$msg = Wx::gettext("'STD Lex Cache' folder is corrupt. Please click on 'Plugins/Perl6/Maintenance' and then 'Cleanup STD Lex Cache' and then re-open the file.");
 				push @{$issues}, { line => 1, msg => $msg, severity => 'E', };
 				# no need to continue collecting errors...
 				last; 
@@ -230,3 +237,18 @@ sub run {
 };
 
 1;
+
+__END__
+
+=head1 AUTHOR
+
+Ahmad M. Zawawi, C<< <ahmad.zawawi at gmail.com> >>
+
+Gabor Szabo L<http://szabgab.com/>
+
+=head1 COPYRIGHT AND LICENSE
+
+Copyright 2008-2009 Padre Developers as in Perl6.pm
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl 5 itself.

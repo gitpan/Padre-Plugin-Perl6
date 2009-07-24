@@ -8,7 +8,7 @@ use Padre::Wx   ();
 use base 'Padre::Plugin';
 
 # exports and version
-our $VERSION   = '0.53';
+our $VERSION   = '0.54';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -45,7 +45,7 @@ sub plugin_locale_directory {
 }
 
 sub padre_interfaces {
-	'Padre::Plugin' => 0.36,
+	'Padre::Plugin' => 0.41,
 }
 
 # plugin icon
@@ -293,6 +293,20 @@ sub registered_documents {
 	'application/x-perl6' => 'Padre::Plugin::Perl6::Perl6Document',
 }
 
+sub provided_highlighters { 
+	return (
+		['Padre::Plugin::Perl6::Perl6StdColorizer', 'STD.pm', 'Larry Wall\'s Perl 6 reference grammar'],
+#		['Padre::Plugin::Perl6::Perl6PgeColorizer', 'PGE/Rakudo', 'Parrot Grammar Engine via Rakudo Perl 6'],
+	);
+}
+
+sub highlighting_mime_types {
+	return (
+		'Padre::Plugin::Perl6::Perl6StdColorizer' => ['application/x-perl6'],
+#		'Padre::Plugin::Perl6::Perl6PgeColorizer' => ['application/x-perl6'],
+	);
+}
+
 # create a Perl 6 file from the template
 sub _create_from_template {
 	my ( $self, $template, $extension ) = @_;
@@ -427,18 +441,21 @@ sub show_perl6_doc {
 	if($doc && $doc->get_mimetype eq q{application/x-perl6}) {
 		# make sure it is a Perl6 document
 		my $editor = $doc->editor;
-		my $lineno = $editor->GetCurrentLine();
-		my $line = $editor->GetLine($lineno);
-		my $current_pos = $editor->GetCurrentPos() - $editor->PositionFromLine($lineno);
-		my $current_word = '';
-		while( $line =~ m/\G.*?(\S+)/g ) {
-			if(pos($line) >= $current_pos) {
-				$current_word = $1;
-				last;
+		$topic = $editor->GetSelectedText;
+		if (not $topic) {
+			my $lineno = $editor->GetCurrentLine();
+			my $line = $editor->GetLine($lineno);
+			my $current_pos = $editor->GetCurrentPos() - $editor->PositionFromLine($lineno);
+			my $current_word = '';
+			while( $line =~ m/\G.*?(\S+)/g ) {
+				if(pos($line) >= $current_pos) {
+					$current_word = $1;
+					last;
+				}
 			}
-		}
-		if($current_word =~ /^.*?(\S+)/) {
-			$topic = $1;
+			if($current_word =~ /^.*?(\S+)/) {
+				$topic = $1;
+			}
 		}
 	}
 

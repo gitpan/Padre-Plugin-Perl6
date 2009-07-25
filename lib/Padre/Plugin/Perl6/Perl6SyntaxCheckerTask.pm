@@ -3,7 +3,7 @@ package Padre::Plugin::Perl6::Perl6SyntaxCheckerTask;
 use strict;
 use warnings;
 
-our $VERSION = '0.54';
+our $VERSION = '0.55';
 
 use base 'Padre::Task::SyntaxChecker';
 
@@ -13,7 +13,7 @@ sub run {
 	my $nlchar = $self->{newlines};
 	$self->{text} =~ s/$nlchar/\n/g if defined $nlchar;
 
-	# Since we have the results ready, 
+	# Since we have the results ready,
 	# and yeah this is kind of dumb
 	$self->{syntax_check} = $self->{issues};
 

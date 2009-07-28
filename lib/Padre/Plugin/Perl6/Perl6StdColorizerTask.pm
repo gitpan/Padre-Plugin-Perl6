@@ -3,9 +3,10 @@ package Padre::Plugin::Perl6::Perl6StdColorizerTask;
 use strict;
 use warnings;
 use base 'Padre::Task';
-use Scalar::Util ();
+use Scalar::Util    ();
+use Padre::Constant ();
 
-our $VERSION        = '0.55';
+our $VERSION        = '0.56';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -161,7 +162,7 @@ sub run {
 	# 1. popping out a command line on each run...
 	# 2. STD.pm uses Storable
 	# 3. Padre TaskManager does not like tasks that do Storable operations...
-	if ( $^O =~ /MSWin/ ) {
+	if (Padre::Constant::WIN32) {
 
 		# on win32 platforms, we need to use this to prevent command line popups when using wperl.exe
 		require Win32;

@@ -9,7 +9,7 @@ use Class::XSAccessor accessors => {
 	_colorizer_cb => '_colorizer_cb', # colorizer on/off checkbox
 };
 
-our $VERSION = '0.55';
+our $VERSION = '0.56';
 
 use Padre::Current;
 use Padre::Wx ();
@@ -36,6 +36,9 @@ sub new {
 
 	# create dialog
 	$self->_create;
+
+	# Dialog's icon as is the same as plugin's
+	$self->SetIcon( $plugin->logo_icon );
 
 	return $self;
 }

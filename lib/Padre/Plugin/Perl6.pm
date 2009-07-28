@@ -4,12 +4,13 @@ use 5.010;
 use strict;
 use warnings;
 use Carp;
-use Padre::Wx ();
+use Padre::Wx       ();
+use Padre::Constant ();
 use base 'Padre::Plugin';
 use Padre::Plugin::Perl6::Util;
 
 # exports and version
-our $VERSION   = '0.55';
+our $VERSION   = '0.56';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -47,7 +48,17 @@ sub padre_interfaces {
 	'Padre::Plugin' => 0.41,;
 }
 
-# plugin icon
+# plugin's real icon object
+sub logo_icon {
+	my ($self) = @_;
+
+	my $icon = Wx::Icon->new;
+	$icon->CopyFromBitmap( $self->plugin_icon );
+
+	return $icon;
+}
+
+# plugin bitmap
 sub plugin_icon {
 
 	# find resource path
@@ -241,17 +252,37 @@ sub menu_plugins {
 		sub { },
 	);
 
+	# Goto perlintro
+	Wx::Event::EVT_MENU(
+		$main,
+		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Introduction"), ),
+		sub {
+			$self->show_help_dialog('perlintro');
+		},
+	);
+
+	# Goto perlsyn
+	Wx::Event::EVT_MENU(
+		$main,
+		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Syntax"), ),
+		sub {
+			$self->show_help_dialog('perlsyn');
+		},
+	);
+
+	$more_help_menu->AppendSeparator;
+
 	# Goto #padre link
 	Wx::Event::EVT_MENU(
 		$main,
-		$more_help_menu->Append( -1, Wx::gettext("#padre for Padre Help"), ),
+		$more_help_menu->Append( -1, Wx::gettext("Visit #padre for Padre Help"), ),
 		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=padre"); },
 	);
 
 	# Goto #perl6 link
 	Wx::Event::EVT_MENU(
 		$main,
-		$more_help_menu->Append( -1, Wx::gettext("#perl6 for Perl 6 Help"), ),
+		$more_help_menu->Append( -1, Wx::gettext("Visit #perl6 for Perl 6 Help"), ),
 		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=perl6"); },
 	);
 
@@ -472,6 +503,16 @@ sub show_perl6_doc {
 			}
 		}
 	}
+
+	$self->show_help_dialog($topic);
+}
+
+#
+# A helper method to show the help dialog
+# for a certain topic
+#
+sub show_help_dialog {
+	my ( $self, $topic ) = @_;
 
 	require Padre::Plugin::Perl6::Perl6HelpDialog;
 	my $dialog = Padre::Plugin::Perl6::Perl6HelpDialog->new( $self, topic => $topic );
@@ -709,7 +750,7 @@ sub generate_p6_exe {
 	my $hello_pl  = File::Spec->catfile( $tmp_dir, 'hello.pl' );
 	my $hello_pir = File::Spec->catfile( $tmp_dir, 'hello.pir' );
 	my $hello_pbc = File::Spec->catfile( $tmp_dir, 'hello.pbc' );
-	my $hello_exe = File::Spec->catfile( $tmp_dir, $^O eq 'MSWin32' ? 'hello.exe' : 'hello' );
+	my $hello_exe = File::Spec->catfile( $tmp_dir, Padre::Constant::WIN32 ? 'hello.exe' : 'hello' );
 
 	#XXX- quote all those files in win32
 	my $perl6_to_pir_cmd = "$perl6 --target=PIR --output=$hello_pir $hello_pl";

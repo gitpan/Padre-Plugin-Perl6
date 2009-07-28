@@ -4,7 +4,7 @@ use warnings;
 use strict;
 
 # package exports and version
-our $VERSION   = '0.55';
+our $VERSION   = '0.56';
 our @EXPORT_OK = ();
 
 # module imports
@@ -52,6 +52,9 @@ sub new {
 	# fit and center the dialog
 	$self->Fit;
 	$self->CentreOnParent;
+
+	# Dialog's icon as is the same as plugin's
+	$self->SetIcon( $plugin->logo_icon );
 
 	return $self;
 }

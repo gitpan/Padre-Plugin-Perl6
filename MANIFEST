@@ -15,6 +15,7 @@ lib/Padre/Plugin/Perl6/share/icons/camelia.png
 lib/Padre/Plugin/Perl6/share/locale/Perl6-ar.po
 lib/Padre/Plugin/Perl6/share/locale/Perl6-es-es.po
 lib/Padre/Plugin/Perl6/share/locale/Perl6-fr-fr.po
+lib/Padre/Plugin/Perl6/share/locale/Perl6-ja.po
 lib/Padre/Plugin/Perl6/share/locale/Perl6-nl-nl.po
 lib/Padre/Plugin/Perl6/share/locale/Perl6-pl.po
 lib/Padre/Plugin/Perl6/share/locale/Perl6-pt-br.po

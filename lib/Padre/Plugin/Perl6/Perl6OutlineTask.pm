@@ -3,7 +3,7 @@ package Padre::Plugin::Perl6::Perl6OutlineTask;
 use strict;
 use warnings;
 
-our $VERSION = '0.56';
+our $VERSION = '0.57';
 
 use base 'Padre::Task::Outline';
 
@@ -245,13 +245,7 @@ sub _on_tree_item_right_click {
 			$outlinebar,
 			$pod,
 			sub {
-
-				# TODO Fix this wasting of objects (cf. Padre::Wx::Menu::Help)
-				my $help = Padre::Wx::DocBrowser->new;
-				$help->help( $itemData->{name} );
-				$help->SetFocus;
-				$help->Show(1);
-				return;
+				Padre->ide->wx->main->help( $itemData->{name} );
 			},
 		);
 		$showMenu++;

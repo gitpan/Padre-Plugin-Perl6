@@ -6,7 +6,7 @@ use base 'Padre::Task';
 use Scalar::Util    ();
 use Padre::Constant ();
 
-our $VERSION        = '0.56';
+our $VERSION        = '0.57';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -111,8 +111,18 @@ sub finish {
 		$doc->{issues} = [];
 	}
 
-	$doc->check_syntax_in_background( force => 1 );
-	$doc->get_outline( force => 1 );
+	# TODO: understand the case when opening Padre, if there
+	# is a Perl 6 file this will be called and it won't find the method
+	# probably this happens as the current file is different when the finish is called
+	# from the one that was called at the beginning (this is at open time with many
+	# buffers opening). There is a safeguard at the beginning of this sub but it seems
+	# to be failing its job, Maybe the Padre::Task should have a built in suppport to
+	# associate a task with a certain buffer
+	eval {
+		$doc->check_syntax_in_background( force => 1 );
+		$doc->get_outline( force => 1 );
+	};
+	if ($@) { print "$doc\n"; }
 
 	# finished here
 	$thread_running = 0;
@@ -154,9 +164,9 @@ sub run {
 	require File::Basename;
 	require File::Spec;
 	my $cmd =
-		  Padre->perl_interpreter . " "
+		  Padre::Perl->perl . " "
 		. Cwd::realpath( File::Spec->join( File::Basename::dirname(__FILE__), 'p6tokens.p5' ) )
-		. " \"$tmp_in\" \"$tmp_out\" \"$tmp_err\" $tmp_dir";
+		. " \"$tmp_in\" \"$tmp_out\" \"$tmp_err\" \"$tmp_dir\"";
 
 	# all this is needed to prevent win32 platforms from:
 	# 1. popping out a command line on each run...
@@ -173,7 +183,7 @@ sub run {
 		}
 
 		my $p_obj;
-		Win32::Process::Create( $p_obj, Padre->perl_interpreter, $cmd, 0, Win32::Process::DETACHED_PROCESS(), '.' )
+		Win32::Process::Create( $p_obj, Padre::Perl->perl, $cmd, 0, Win32::Process::DETACHED_PROCESS(), '.' )
 			or warn &print_error;
 		$p_obj->Wait( Win32::Process::INFINITE() );
 	} else {

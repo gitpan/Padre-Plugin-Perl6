@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.56';
+our $VERSION = '0.57';
 our @ISA     = 'Padre::Document';
 
 # max lines to display in a calltip
@@ -863,6 +863,29 @@ sub get_outline {
 	$task->schedule;
 	return;
 }
+
+#
+# Render Grok help xhtml for Padre's Help Search facility
+#
+sub on_help_render {
+	my ( $self, $topic ) = @_;
+
+	require App::Grok;
+	my $grok     = App::Grok->new;
+	my $html     = $grok->render_target( $topic, 'xhtml' );
+	my $location = $grok->locate_target($topic);
+	return ( $html, $location );
+}
+
+#
+# Render Grok help list for Padre's Help Search facility
+#
+sub on_help_list {
+	require App::Grok;
+	my $grok = App::Grok->new;
+	return sort $grok->target_index;
+}
+
 
 1;
 

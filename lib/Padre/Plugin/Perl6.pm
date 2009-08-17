@@ -10,7 +10,7 @@ use base 'Padre::Plugin';
 use Padre::Plugin::Perl6::Util;
 
 # exports and version
-our $VERSION   = '0.56';
+our $VERSION   = '0.57';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -29,23 +29,13 @@ sub plugin_config {
 	return $config;
 }
 
-# private subroutine to return the current share directory location
-sub _sharedir {
-	return Cwd::realpath( File::Spec->join( File::Basename::dirname(__FILE__), 'Perl6/share' ) );
-}
-
 # Returns the plugin name to Padre
 sub plugin_name {
 	return Wx::gettext("Perl 6");
 }
 
-# directory where to find the translations
-sub plugin_locale_directory {
-	return File::Spec->catdir( _sharedir(), 'locale' );
-}
-
 sub padre_interfaces {
-	'Padre::Plugin' => 0.41,;
+	'Padre::Plugin' => 0.43;
 }
 
 # plugin's real icon object
@@ -60,12 +50,13 @@ sub logo_icon {
 
 # plugin bitmap
 sub plugin_icon {
+	my $self = shift;
 
 	# find resource path
-	my $iconpath = File::Spec->catfile( _sharedir(), 'icons', 'camelia.png' );
+	my $icon_path = File::Spec->catfile( $self->plugin_directory_share, 'icons', 'camelia.png' );
 
 	# create and return icon
-	return Wx::Bitmap->new( $iconpath, Wx::wxBITMAP_TYPE_PNG );
+	return Wx::Bitmap->new( $icon_path, Wx::wxBITMAP_TYPE_PNG );
 }
 
 # called when the plugin is enabled
@@ -237,13 +228,6 @@ sub menu_plugins {
 
 	$self->{menu}->AppendSeparator;
 
-	# Perl6 grok-based Help dialog doc reader
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Perl 6 Help\tF2"), ),
-		sub { $self->show_perl6_doc; },
-	);
-
 	# More Help? sub menu
 	my $more_help_menu = Wx::Menu->new();
 	Wx::Event::EVT_MENU(
@@ -256,18 +240,14 @@ sub menu_plugins {
 	Wx::Event::EVT_MENU(
 		$main,
 		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Introduction"), ),
-		sub {
-			$self->show_help_dialog('perlintro');
-		},
+		sub { $main->help_search('perlintro'); },
 	);
 
 	# Goto perlsyn
 	Wx::Event::EVT_MENU(
 		$main,
 		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Syntax"), ),
-		sub {
-			$self->show_help_dialog('perlsyn');
-		},
+		sub { $main->help_search('perlsyn'); },
 	);
 
 	$more_help_menu->AppendSeparator;
@@ -353,14 +333,18 @@ sub _create_from_template {
 	$self->main->on_new;
 
 	my $editor = $self->current->editor or return;
-	my $file = File::Spec->catdir( _sharedir(), "templates/$template.$extension" );
-	$editor->insert_from_file($file);
+	my $file = File::Spec->catdir( $self->plugin_directory_share, "templates", "$template.$extension" );
 
-	my $document = $editor->{Document};
-	my $mime_type = ( $extension eq 'p6' ) ? 'application/x-perl6' : 'application/x-perl';
-	$document->set_mimetype($mime_type);
-	$document->editor->padre_setup;
-	$document->rebless;
+	if ( $editor->insert_from_file($file) ) {
+		my $document = $editor->{Document};
+		$document->{original_content} = $document->text_get;
+		$document->set_mimetype( $document->guess_mimetype );
+		$document->editor->padre_setup;
+		$document->rebless;
+		$document->colourize;
+	} else {
+		$self->main->message( sprintf( Wx::gettext("Error loading template file '%s'"), $file ) );
+	}
 
 	return;
 }
@@ -374,7 +358,7 @@ sub show_preferences {
 }
 
 sub show_about {
-	my $main = shift;
+	my $self = shift;
 
 	require Syntax::Highlight::Perl6;
 	require App::Grok;
@@ -392,7 +376,7 @@ sub show_about {
 	$about->SetVersion($VERSION);
 
 	# create and return the camelia icon
-	my $camelia_path = File::Spec->catfile( _sharedir(), 'icons', 'camelia-big.png' );
+	my $camelia_path = File::Spec->catfile( $self->plugin_directory_share, 'icons', 'camelia-big.png' );
 	my $camelia_bmp = Wx::Bitmap->new( $camelia_path, Wx::wxBITMAP_TYPE_PNG );
 	my $camelia_icon = Wx::Icon->new();
 	$camelia_icon->CopyFromBitmap($camelia_bmp);
@@ -503,20 +487,6 @@ sub show_perl6_doc {
 			}
 		}
 	}
-
-	$self->show_help_dialog($topic);
-}
-
-#
-# A helper method to show the help dialog
-# for a certain topic
-#
-sub show_help_dialog {
-	my ( $self, $topic ) = @_;
-
-	require Padre::Plugin::Perl6::Perl6HelpDialog;
-	my $dialog = Padre::Plugin::Perl6::Perl6HelpDialog->new( $self, topic => $topic );
-	$dialog->ShowModal();
 
 }
 

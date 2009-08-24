@@ -1,6 +1,6 @@
 ---
 name: Padre-Plugin-Perl6
-version: 0.57
+version: 0.58
 author:
   - Ahmad M. Zawawi and Gabor Szabo
 abstract: Padre plugin for Perl 6
@@ -14,8 +14,9 @@ requires:
   Class::XSAccessor: 1.02
   File::Which: 0.05
   Padre: 0.44
+  Perl6::Doc: 0.45
   Perl6::Refactor: 0
-  Syntax::Highlight::Perl6: 0.71
+  Syntax::Highlight::Perl6: 0.72
   URI: 1.37
   perl: 5.010
 build_requires:
@@ -25,32 +26,38 @@ build_requires:
 provides:
   Padre::Plugin::Perl6:
     file: lib/Padre/Plugin/Perl6.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Perl6Colorizer:
     file: lib/Padre/Plugin/Perl6/Perl6Colorizer.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Perl6Document:
     file: lib/Padre/Plugin/Perl6/Perl6Document.pm
-    version: 0.57
+    version: 0.58
+  Padre::Plugin::Perl6::Perl6HelpProvider:
+    file: lib/Padre/Plugin/Perl6/Perl6HelpProvider.pm
+    version: 0.58
   Padre::Plugin::Perl6::Perl6OutlineTask:
     file: lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
-    version: 0.57
+    version: 0.58
+  Padre::Plugin::Perl6::Perl6QuickFixProvider:
+    file: lib/Padre/Plugin/Perl6/Perl6QuickFixProvider.pm
+    version: 0.58
   Padre::Plugin::Perl6::Perl6StdColorizer:
     file: lib/Padre/Plugin/Perl6/Perl6StdColorizer.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Perl6StdColorizerTask:
     file: lib/Padre/Plugin/Perl6/Perl6StdColorizerTask.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Perl6SyntaxCheckerTask:
     file: lib/Padre/Plugin/Perl6/Perl6SyntaxCheckerTask.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Preferences:
     file: lib/Padre/Plugin/Perl6/Preferences.pm
-    version: 0.57
+    version: 0.58
   Padre::Plugin::Perl6::Util:
     file: lib/Padre/Plugin/Perl6/Util.pm
-    version: 0.57
-generated_by: Module::Build version 0.3
+    version: 0.58
+generated_by: Module::Build version 0.280801
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.2.html
   version: 1.2

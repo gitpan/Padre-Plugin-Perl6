@@ -6,7 +6,7 @@ use base 'Padre::Task';
 use Scalar::Util    ();
 use Padre::Constant ();
 
-our $VERSION        = '0.57';
+our $VERSION        = '0.58';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -218,7 +218,7 @@ sub run {
 		my $issues = [];
 		my $prefix = '';
 		for my $msg (@messages) {
-			if ( $msg =~ /^\#\#\#\#\# PARSE FAILED \#\#\#\#\#/i ) {
+			if ( $msg =~ /^===SORRY!===/i ) {
 
 				# the following lines are errors until we see the warnings section
 				$severity = 'E';

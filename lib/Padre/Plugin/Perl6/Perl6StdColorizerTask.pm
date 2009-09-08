@@ -5,8 +5,9 @@ use warnings;
 use base 'Padre::Task';
 use Scalar::Util    ();
 use Padre::Constant ();
+use Padre::Util     ();
 
-our $VERSION        = '0.58';
+our $VERSION        = '0.59';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -212,7 +213,7 @@ sub run {
 
 		# remove ANSI color escape sequences...
 		$err =~ s/\033\[\d+(?:;\d+(?:;\d+)?)?m//g;
-		print qq{STD.pm warning/error:\n$err\n};
+		Padre::Util::debug(qq{STD.pm warning/error:\n$err\n});
 		my @messages = split /\n/, $err;
 		my ( $lineno, $severity );
 		my $issues = [];

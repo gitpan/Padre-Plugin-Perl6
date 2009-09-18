@@ -10,7 +10,7 @@ use base 'Padre::Plugin';
 use Padre::Plugin::Perl6::Util;
 
 # exports and version
-our $VERSION   = '0.59';
+our $VERSION   = '0.60';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -281,6 +281,16 @@ sub menu_plugins {
 		$self->{menu}->Append( -1, Wx::gettext("Maintenance"), $maintenance_menu ),
 		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=padre"); },
 	);
+
+	# Update Six distribution on win32
+	if (Padre::Constant::WIN32) {
+		Wx::Event::EVT_MENU(
+			$main,
+			$maintenance_menu->Append( -1, Wx::gettext("Update Six"), ),
+			sub { $self->update_six; },
+		);
+		$maintenance_menu->AppendSeparator;
+	}
 
 	# Cleanup STD.pm lex cache
 	Wx::Event::EVT_MENU(
@@ -736,6 +746,19 @@ sub generate_p6_pir {
 	# try to open the HTML file
 	$main->setup_editor($hello_pir);
 
+}
+
+#
+# Updates Six distributon (on win32)
+#
+sub update_six {
+	my $self = shift;
+
+	return if not Padre::Constant::WIN32;
+
+	require Padre::Plugin::Perl6::UpdateDialog;
+	my $dlg = Padre::Plugin::Perl6::UpdateDialog->new($self);
+	$dlg->ShowModal;
 }
 
 1;

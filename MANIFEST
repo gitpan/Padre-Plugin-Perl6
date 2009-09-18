@@ -29,6 +29,8 @@ lib/Padre/Plugin/Perl6/share/templates/p6_module.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_package.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_role.p6
 lib/Padre/Plugin/Perl6/share/templates/p6_script.p6
+lib/Padre/Plugin/Perl6/UpdateDialog.pm
+lib/Padre/Plugin/Perl6/UpdateTask.pm
 lib/Padre/Plugin/Perl6/Util.pm
 MANIFEST			This list of files
 README

@@ -5,13 +5,16 @@ use Module::Build;
 my %requires = (
 	'perl'                     => '5.010',
 	'Padre'                    => '0.44',
-	'Syntax::Highlight::Perl6' => '0.73',
+	'Syntax::Highlight::Perl6' => '0.74',
 	'Perl6::Refactor'          => '0',
 	'URI'                      => '1.37',
 	'File::Which'              => '0.05',
 	'Class::XSAccessor'        => '1.02',
 	'App::Grok'                => '0.19',
 	'Perl6::Doc'               => '0.45',
+	'HTTP::Status'             => '5.817',
+	'Net::HTTP'                => '5.831',
+	'Archive::Zip'             => '1.30',
 );
 
 if ( $^O =~ /win32/i ) {

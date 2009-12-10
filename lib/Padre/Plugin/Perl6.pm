@@ -10,7 +10,7 @@ use base 'Padre::Plugin';
 use Padre::Plugin::Perl6::Util;
 
 # exports and version
-our $VERSION   = '0.60';
+our $VERSION   = '0.61';
 our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
@@ -265,11 +265,11 @@ sub menu_plugins {
 		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=perl6"); },
 	);
 
-	# Perl 6 projects link
+	# Perl 6 link
 	Wx::Event::EVT_MENU(
 		$main,
-		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Projects"), ),
-		sub { Wx::LaunchDefaultBrowser("http://perl6-projects.org"); },
+		$more_help_menu->Append( -1, Wx::gettext("Perl 6 Website"), ),
+		sub { Wx::LaunchDefaultBrowser("http://perl6.org"); },
 	);
 
 	$self->{menu}->AppendSeparator;

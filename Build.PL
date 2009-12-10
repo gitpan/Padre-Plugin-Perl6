@@ -5,7 +5,7 @@ use Module::Build;
 my %requires = (
 	'perl'                     => '5.010',
 	'Padre'                    => '0.44',
-	'Syntax::Highlight::Perl6' => '0.74',
+	'Syntax::Highlight::Perl6' => '0.75',
 	'Perl6::Refactor'          => '0',
 	'URI'                      => '1.37',
 	'File::Which'              => '0.05',
@@ -35,9 +35,9 @@ my $builder = $class->new(
 	dist_author       => 'Ahmad M. Zawawi and Gabor Szabo',
 	dist_version_from => 'lib/Padre/Plugin/Perl6.pm',
 	build_requires    => {
-		'Test::More'       => '0.86',
-		'Test::Exception'  => '0.27',
-		'Locale::Msgfmt'   => '0.14',
+		'Test::More'      => '0.86',
+		'Test::Exception' => '0.27',
+		'Locale::Msgfmt'  => '0.14',
 	},
 	requires           => \%requires,
 	add_to_cleanup     => ['Padre-Plugin-Perl6-*'],

@@ -8,7 +8,7 @@ use Padre::Constant ();
 use Padre::Logger;
 use Padre::Util     ();
 
-our $VERSION        = '0.62';
+our $VERSION        = '0.63';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -263,8 +263,8 @@ sub run {
 
 	if ($out) {
 		eval {
-			require Storable;
-			$self->{tokens} = Storable::thaw($out);
+			require YAML::XS;
+			$self->{tokens} = YAML::XS::Load($out);
 		};
 		if ($@) {
 			warn "Exception: $@";

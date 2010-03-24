@@ -17,43 +17,43 @@ name: Padre-Plugin-Perl6
 provides:
   Padre::Plugin::Perl6:
     file: lib/Padre/Plugin/Perl6.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6Colorizer:
     file: lib/Padre/Plugin/Perl6/Perl6Colorizer.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6Document:
     file: lib/Padre/Plugin/Perl6/Perl6Document.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6HelpProvider:
     file: lib/Padre/Plugin/Perl6/Perl6HelpProvider.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6OutlineTask:
     file: lib/Padre/Plugin/Perl6/Perl6OutlineTask.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6QuickFixProvider:
     file: lib/Padre/Plugin/Perl6/Perl6QuickFixProvider.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6StdColorizer:
     file: lib/Padre/Plugin/Perl6/Perl6StdColorizer.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6StdColorizerTask:
     file: lib/Padre/Plugin/Perl6/Perl6StdColorizerTask.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Perl6SyntaxCheckerTask:
     file: lib/Padre/Plugin/Perl6/Perl6SyntaxCheckerTask.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Preferences:
     file: lib/Padre/Plugin/Perl6/Preferences.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::UpdateDialog:
     file: lib/Padre/Plugin/Perl6/UpdateDialog.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::UpdateTask:
     file: lib/Padre/Plugin/Perl6/UpdateTask.pm
-    version: 0.63
+    version: 0.64
   Padre::Plugin::Perl6::Util:
     file: lib/Padre/Plugin/Perl6/Util.pm
-    version: 0.63
+    version: 0.64
 requires:
   App::Grok: 0.19
   Archive::Zip: 1.30
@@ -61,7 +61,7 @@ requires:
   File::Which: 0.05
   HTTP::Status: 5.817
   Net::HTTP: 5.831
-  Padre: 0.56
+  Padre: 0.57
   Perl6::Doc: 0.45
   Perl6::Refactor: 0
   Syntax::Highlight::Perl6: 0.79
@@ -71,4 +71,4 @@ resources:
   homepage: http://padre.perlide.org/
   license: http://dev.perl.org/licenses/
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/
-version: 0.63
+version: 0.64

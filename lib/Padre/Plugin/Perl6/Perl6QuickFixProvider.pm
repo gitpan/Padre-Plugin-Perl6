@@ -6,10 +6,10 @@ use warnings;
 
 use Padre::Wx                  ();
 use Padre::Plugin::Perl6::Util ();
-use Padre::QuickFixProvider    ();
+use Padre::QuickFix            ();
 
-our $VERSION = '0.63';
-our @ISA     = ('Padre::QuickFixProvider');
+our $VERSION = '0.64';
+our @ISA     = ('Padre::QuickFix');
 
 #
 # Constructor.

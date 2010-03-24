@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.63';
+our $VERSION = '0.64';
 our @ISA     = 'Padre::Document';
 
 # get Perl6 (rakudo) command line for "Run script" F5 Padre menu item
@@ -67,9 +67,9 @@ sub _check_syntax_internals {
 
 	require Padre::Plugin::Perl6::Perl6SyntaxCheckerTask;
 	my $task = Padre::Plugin::Perl6::Perl6SyntaxCheckerTask->new(
-		notebook_page => $self->editor,
-		text          => $text,
-		issues        => $self->{issues},
+		editor => $self->editor,
+		text   => $text,
+		issues => $self->{issues},
 		( exists $args->{on_finish} ? ( on_finish => $args->{on_finish} ) : () ),
 	);
 	if ( $args->{background} ) {

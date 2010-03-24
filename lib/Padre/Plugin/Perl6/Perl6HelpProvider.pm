@@ -4,10 +4,10 @@ use strict;
 use warnings;
 
 # For Perl 6 documentation support
-use App::Grok           ();
-use Padre::Help         ();
+use App::Grok   ();
+use Padre::Help ();
 
-our $VERSION = '0.63';
+our $VERSION = '0.64';
 our @ISA     = 'Padre::Help';
 
 use Class::XSAccessor accessors => {

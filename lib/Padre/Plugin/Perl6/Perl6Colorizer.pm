@@ -6,7 +6,7 @@ use warnings;
 
 use Padre::Wx ();
 
-our $VERSION = '0.63';
+our $VERSION = '0.64';
 
 # colorize timer to make sure that colorize tasks are scheduled properly...
 my $COLORIZE_TIMER;
@@ -42,9 +42,7 @@ sub colorize {
 					: 'Padre::Plugin::Perl6::Perl6PgeColorizerTask'; # PGE
 				eval "use $module";
 				my $task = $module->new(
-					text     => $doc->text_with_one_nl,
-					editor   => $doc->editor,
-					document => $doc
+					text => $doc->text_with_one_nl,
 				);
 
 				# hand off to the task manager

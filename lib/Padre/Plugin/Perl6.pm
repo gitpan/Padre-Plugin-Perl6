@@ -1,4 +1,9 @@
 package Padre::Plugin::Perl6;
+BEGIN {
+  $Padre::Plugin::Perl6::VERSION = '0.66';
+}
+
+# ABSTRACT: Perl 6 Support for Padre
 
 use 5.010;
 use strict;
@@ -6,12 +11,9 @@ use warnings;
 use Carp;
 use Padre::Wx       ();
 use Padre::Constant ();
+use Padre::Util     ();
 use base 'Padre::Plugin';
 use Padre::Plugin::Perl6::Util;
-
-# exports and version
-our $VERSION   = '0.64';
-our @EXPORT_OK = qw(plugin_config);
 
 # constants for html exporting
 my $FULL_HTML    = 'full_html';
@@ -39,11 +41,10 @@ sub padre_interfaces {
 }
 
 #
-# private subroutine to return the current share directory location
-# We will keep this until Module::Build get its own sharedir installation feature
+# Returns the current share directory location
 #
 sub _sharedir {
-	return Cwd::realpath( File::Spec->join( File::Basename::dirname(__FILE__), 'Perl6', 'share' ) );
+	return Padre::Util::share('Perl6');
 }
 
 # plugin's real icon object
@@ -146,42 +147,6 @@ sub menu_plugins {
 		sub { $self->_create_from_template( 'p6_inline_in_p5', 'p5' ) },
 	);
 
-	# Refactor sub menu
-	my $refactor_menu = Wx::Menu->new();
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Refactor..."), $refactor_menu ),
-		sub { },
-	);
-
-	# Find variable declaration
-	Wx::Event::EVT_MENU(
-		$main,
-		$refactor_menu->Append( -1, Wx::gettext("Find variable declaration"), ),
-		sub {
-			Wx::MessageBox(
-				Wx::gettext('Perl 6 refactoring support is coming soon...'),
-				Wx::gettext('Error'),
-				Wx::wxOK,
-				$main,
-			);
-		},
-	);
-
-	# Rename variable
-	Wx::Event::EVT_MENU(
-		$main,
-		$refactor_menu->Append( -1, Wx::gettext("Rename variable"), ),
-		sub {
-			Wx::MessageBox(
-				Wx::gettext('Perl 6 refactoring support is coming soon...'),
-				Wx::gettext('Error'),
-				Wx::wxOK,
-				$main,
-			);
-		},
-	);
-
 	# Rakudo sub menu
 	my $rakudo_menu = Wx::Menu->new();
 	Wx::Event::EVT_MENU(
@@ -274,31 +239,6 @@ sub menu_plugins {
 
 	$self->{menu}->AppendSeparator;
 
-	# Maintenance
-	my $maintenance_menu = Wx::Menu->new();
-	Wx::Event::EVT_MENU(
-		$main,
-		$self->{menu}->Append( -1, Wx::gettext("Maintenance"), $maintenance_menu ),
-		sub { Wx::LaunchDefaultBrowser("http://padre.perlide.org/irc.html?channel=padre"); },
-	);
-
-	# Update Six distribution on win32
-	if (Padre::Constant::WIN32) {
-		Wx::Event::EVT_MENU(
-			$main,
-			$maintenance_menu->Append( -1, Wx::gettext("Update Six"), ),
-			sub { $self->update_six; },
-		);
-		$maintenance_menu->AppendSeparator;
-	}
-
-	# Cleanup STD.pm lex cache
-	Wx::Event::EVT_MENU(
-		$main,
-		$maintenance_menu->Append( -1, Wx::gettext("Cleanup STD.pm Lex Cache"), ),
-		sub { $self->cleanup_std_lex_cache; },
-	);
-
 	# Preferences
 	Wx::Event::EVT_MENU(
 		$main,
@@ -318,18 +258,18 @@ sub menu_plugins {
 }
 
 sub registered_documents {
-	'application/x-perl6' => 'Padre::Plugin::Perl6::Perl6Document',;
+	'application/x-perl6' => 'Padre::Plugin::Perl6::Document',;
 }
 
 sub provided_highlighters {
 	return (
-		[ 'Padre::Plugin::Perl6::Perl6StdColorizer', 'STD.pm', 'Larry Wall\'s Perl 6 reference grammar' ],
+		[ 'Padre::Plugin::Perl6::StdColorizer', 'STD.pm', 'Larry Wall\'s Perl 6 reference grammar' ],
 	);
 }
 
 sub highlighting_mime_types {
 	return (
-		'Padre::Plugin::Perl6::Perl6StdColorizer' => ['application/x-perl6'],
+		'Padre::Plugin::Perl6::StdColorizer' => ['application/x-perl6'],
 
 		#		'Padre::Plugin::Perl6::Perl6PgeColorizer' => ['application/x-perl6'],
 	);
@@ -382,7 +322,7 @@ sub show_about {
 			. "App::Grok "
 			. $App::Grok::VERSION
 			. "\n" );
-	$about->SetVersion($VERSION);
+	$about->SetVersion($Padre::Plugin::Perl6::VERSION);
 
 	# create and return the camelia icon
 	my $camelia_path = File::Spec->catfile( $self->_sharedir, 'icons', 'camelia-big.png' );
@@ -395,87 +335,13 @@ sub show_about {
 	return;
 }
 
-#
-# Cleans up STD lex cache after confirming with the user
-#
-sub cleanup_std_lex_cache {
-	my $self = shift;
-
-	my $main = $self->main;
-
-	my $tmp_dir = File::Spec->catfile(
-		Padre::Constant::PLUGIN_DIR,
-		'Padre-Plugin-Perl6'
-	);
-	my $LEX_STD_DIR = "$tmp_dir/lex/STD";
-	if ( not -d $LEX_STD_DIR ) {
-		Wx::MessageBox(
-			Wx::gettext("Cannot find STD.pm lex cache"),
-			'Error',
-			Wx::wxOK,
-			$main,
-		);
-		return;
-	}
-
-
-	#find files in lex cache along with its total size;
-	use File::Find;
-	our @files_to_delete = ();
-	my $lex_cache_size = 0;
-	find(
-		sub {
-			my $file = $_;
-			if ( -f $file ) {
-				$lex_cache_size += -s $file;
-				push @files_to_delete, $File::Find::name;
-			}
-		},
-		$LEX_STD_DIR
-	);
-	$lex_cache_size = sprintf( "%0.3f", $lex_cache_size / ( 1024 * 1024 ) );
-
-	# ask the user if he/she wants to open it in the default browser
-	my $num_files_to_delete = scalar @files_to_delete;
-	if ( $num_files_to_delete > 0 ) {
-		my $ret = Wx::MessageBox(
-			"STD.pm lex cache has $num_files_to_delete file(s) and $lex_cache_size MB.\n"
-				. "Do you want to clean it up now?",
-			"Confirmation",
-			Wx::wxYES_NO | Wx::wxCENTRE,
-			$main,
-		);
-		if ( $ret == Wx::wxYES ) {
-
-			#clean it up...
-			my $deleted_count = unlink @files_to_delete;
-			Wx::MessageBox(
-				"STD.pm lex cache should be clean now.\n"
-					. "Deleted $deleted_count out of $num_files_to_delete file(s).",
-				'Information',
-				Wx::wxOK,
-				$main,
-			);
-		}
-	} else {
-		Wx::MessageBox(
-			'STD.pm lex cache is already clean.',
-			'Information',
-			Wx::wxOK,
-			$main,
-		);
-	}
-
-	return;
-}
-
 sub show_perl6_doc {
 	my $self = shift;
 
 	# find the word under the current cursor position
 	my $topic = '';
 	my $doc   = $self->current->document;
-	if ( $doc && $doc->get_mimetype eq q{application/x-perl6} ) {
+	if ( $doc && $doc->mimetype eq q{application/x-perl6} ) {
 
 		# make sure it is a Perl6 document
 		my $editor = $doc->editor;
@@ -518,9 +384,9 @@ sub text_with_one_nl {
 	my $text = $doc->text_get // '';
 
 	my $nlchar = "\n";
-	if ( $doc->get_newline_type eq 'WIN' ) {
+	if ( $doc->newline_type eq 'WIN' ) {
 		$nlchar = "\r\n";
-	} elsif ( $doc->get_newline_type eq 'MAC' ) {
+	} elsif ( $doc->newline_type eq 'MAC' ) {
 		$nlchar = "\r";
 	}
 	$text =~ s/$nlchar/\n/g;
@@ -538,7 +404,7 @@ sub export_html {
 		return;
 	}
 
-	if ( $doc->get_mimetype ne q{application/x-perl6} ) {
+	if ( $doc->mimetype ne q{application/x-perl6} ) {
 		Wx::MessageBox(
 			Wx::gettext('Not a Perl 6 file'),
 			Wx::gettext('Operation cancelled'),
@@ -660,7 +526,7 @@ sub generate_p6_pir {
 		Wx::MessageBox( Wx::gettext('No document'), Wx::gettext('Error'), Wx::wxOK, $main, );
 		return;
 	}
-	if ( $doc->get_mimetype ne q{application/x-perl6} ) {
+	if ( $doc->mimetype ne q{application/x-perl6} ) {
 		Wx::MessageBox(
 			'Not a Perl 6 file',
 			'Operation cancelled',
@@ -748,44 +614,53 @@ sub generate_p6_pir {
 
 }
 
-#
-# Updates Six distributon (on win32)
-#
-sub update_six {
-	my $self = shift;
-
-	return if not Padre::Constant::WIN32;
-
-	require Padre::Plugin::Perl6::UpdateDialog;
-	my $dlg = Padre::Plugin::Perl6::UpdateDialog->new($self);
-	$dlg->ShowModal;
-}
-
 1;
 
-__END__
+
+
+=pod
 
 =head1 NAME
 
-Padre::Plugin::Perl6 - Padre plugin for Perl 6
+Padre::Plugin::Perl6 - Perl 6 Support for Padre
+
+=head1 VERSION
+
+version 0.66
 
 =head1 SYNOPSIS
 
 After installation when you run Padre there should be a menu option Plugins/Perl 6.
 
-=head1 AUTHOR
-
-Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
-
-Gabor Szabo L<http://szabgab.com/>
-
-=head1 COPYRIGHT AND LICENSE
-
-Copyright 2008-2009 Padre Developers as in Perl6.pm
-
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.
+=head1 ACKNOWLEDGEMENTS
 
 The Camelia image is copyright 2009 by Larry Wall.  Permission to use
 is granted under the Artistic License 2.0, or any subsequent version
 of the Artistic License.
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+=item *
+
+Gabor Szabo L<http://szabgab.com/>
+
+=back
+
+=head1 COPYRIGHT AND LICENSE
+
+This software is copyright (c) 2010 by Ahmad M. Zawawi.
+
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+
+__END__
+

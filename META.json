@@ -1,0 +1,239 @@
+{
+   "abstract" : "Perl 6 Support for Padre",
+   "author" : [
+      "Ahmad M. Zawawi <ahmad.zawawi@gmail.com>",
+      "Gabor Szabo L<http://szabgab.com/>"
+   ],
+   "dynamic_config" : 0,
+   "generated_by" : "Dist::Zilla version 4.102342, CPAN::Meta::Converter version 2.102400",
+   "license" : [
+      "perl_5"
+   ],
+   "meta-spec" : {
+      "url" : "http://search.cpan.org/perldoc?CPAN::Meta::Spec",
+      "version" : "2"
+   },
+   "name" : "Padre-Plugin-Perl6",
+   "prereqs" : {
+      "build" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "configure" : {
+         "requires" : {
+            "Module::Build" : "0.3601"
+         }
+      },
+      "runtime" : {
+         "requires" : {
+            "App::Grok" : "0.22",
+            "Class::XSAccessor" : "1.02",
+            "File::Which" : "0.05",
+            "Padre" : "0.72",
+            "Perl6::Doc" : "0.45",
+            "Syntax::Highlight::Perl6" : "0.87",
+            "URI" : "1.37",
+            "perl" : "5.010"
+         }
+      },
+      "test" : {
+         "requires" : {
+            "Locale::Msgfmt" : "0.14",
+            "Test::More" : 0
+         }
+      }
+   },
+   "release_status" : "stable",
+   "resources" : {
+      "homepage" : "http://padre.perlide.org",
+      "repository" : {
+         "url" : "http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/"
+      }
+   },
+   "version" : "0.66",
+   "x_Dist_Zilla" : {
+      "plugins" : [
+         {
+            "class" : "Dist::Zilla::Plugin::GatherDir",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/GatherDir",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::PruneCruft",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/PruneCruft",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ManifestSkip",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/ManifestSkip",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::MetaYAML",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/MetaYAML",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::License",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/License",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Readme",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/Readme",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ExtraTests",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/ExtraTests",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ExecDir",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/ExecDir",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ShareDir",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/ShareDir",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Manifest",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/Manifest",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::TestRelease",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/TestRelease",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ConfirmRelease",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/ConfirmRelease",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::UploadToCPAN",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Basic/UploadToCPAN",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::CheckChangeLog",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::CheckChangeLog",
+            "version" : "0.01"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::CheckChangesTests",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::CheckChangesTests",
+            "version" : "1.100900"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::CompileTests",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::CompileTests",
+            "version" : "1.101800"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::EOLTests",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::EOLTests",
+            "version" : "0.02"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::PodWeaver",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::PodWeaver",
+            "version" : "3.101641"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::PkgVersion",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::PkgVersion",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::MetaResources",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::MetaResources",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::MetaConfig",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::MetaConfig",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::MetaJSON",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::MetaJSON",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::NextRelease",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::NextRelease",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::PodSyntaxTests",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::ModuleBuild",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::ModuleBuild",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::LocaleMsgfmt",
+            "name" : "Dist::Zilla::PluginBundle::PadrePlugin/Dist::Zilla::Plugin::LocaleMsgfmt",
+            "version" : "1.100970"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Prereqs",
+            "config" : {
+               "Dist::Zilla::Plugin::Prereqs" : {
+                  "phase" : "test",
+                  "type" : "requires"
+               }
+            },
+            "name" : "TestRequires",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::Prereqs",
+            "config" : {
+               "Dist::Zilla::Plugin::Prereqs" : {
+                  "phase" : "runtime",
+                  "type" : "requires"
+               }
+            },
+            "name" : "Prereqs",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::FinderCode",
+            "name" : ":InstallModules",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::FinderCode",
+            "name" : ":TestFiles",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::FinderCode",
+            "name" : ":ExecFiles",
+            "version" : "4.102342"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::FinderCode",
+            "name" : ":ShareFiles",
+            "version" : "4.102342"
+         }
+      ],
+      "zilla" : {
+         "class" : "Dist::Zilla::Dist::Builder",
+         "config" : {
+            "is_trial" : 0
+         },
+         "version" : "4.102342"
+      }
+   }
+}
+

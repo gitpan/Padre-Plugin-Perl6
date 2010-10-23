@@ -1,5 +1,9 @@
-package Padre::Plugin::Perl6::Perl6QuickFixProvider;
+package Padre::Plugin::Perl6::QuickFix;
+BEGIN {
+  $Padre::Plugin::Perl6::QuickFix::VERSION = '0.66';
+}
 
+# ABSTRACT: Padre Perl 6 Quick Fix Provider
 use 5.008;
 use strict;
 use warnings;
@@ -8,8 +12,7 @@ use Padre::Wx                  ();
 use Padre::Plugin::Perl6::Util ();
 use Padre::QuickFix            ();
 
-our $VERSION = '0.64';
-our @ISA     = ('Padre::QuickFix');
+our @ISA = ('Padre::QuickFix');
 
 #
 # Constructor.
@@ -699,25 +702,45 @@ sub quick_fix_list {
 
 1;
 
-__END__
+
+
+=pod
 
 =head1 NAME
 
-Padre::Plugin::Perl6::Perl6QuickFixProvider - Padre Perl 5 Quick Fix Provider
+Padre::Plugin::Perl6::QuickFix - Padre Perl 6 Quick Fix Provider
+
+=head1 VERSION
+
+version 0.66
 
 =head1 DESCRIPTION
 
-Perl 5 quick fix are implemented here
+Perl 6 quick fixes are implemented here
 
-=head1 AUTHOR
+=head1 AUTHORS
 
-Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
+=over 4
+
+=item *
+
+Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+=item *
 
 Gabor Szabo L<http://szabgab.com/>
 
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Padre Developers as in Perl6.pm
+This software is copyright (c) 2010 by Ahmad M. Zawawi.
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+
+
+__END__
+

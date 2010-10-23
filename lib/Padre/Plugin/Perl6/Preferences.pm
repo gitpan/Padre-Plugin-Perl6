@@ -1,4 +1,9 @@
 package Padre::Plugin::Perl6::Preferences;
+BEGIN {
+  $Padre::Plugin::Perl6::Preferences::VERSION = '0.66';
+}
+
+# ABSTRACT: Preferences Dialog
 
 use warnings;
 use strict;
@@ -8,8 +13,6 @@ use Class::XSAccessor accessors => {
 	_sizer        => '_sizer',        # window sizer
 	_colorizer_cb => '_colorizer_cb', # colorizer on/off checkbox
 };
-
-our $VERSION = '0.64';
 
 use Padre::Current;
 use Padre::Wx ();
@@ -135,16 +138,36 @@ sub _create_controls {
 1;
 
 __END__
+=pod
 
-=head1 AUTHOR
+=head1 NAME
 
-Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
+Padre::Plugin::Perl6::Preferences - Preferences Dialog
+
+=head1 VERSION
+
+version 0.66
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+=item *
 
 Gabor Szabo L<http://szabgab.com/>
 
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Padre Developers as in Perl6.pm
+This software is copyright (c) 2010 by Ahmad M. Zawawi.
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

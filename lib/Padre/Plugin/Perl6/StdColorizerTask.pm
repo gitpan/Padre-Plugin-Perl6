@@ -1,4 +1,9 @@
-package Padre::Plugin::Perl6::Perl6StdColorizerTask;
+package Padre::Plugin::Perl6::StdColorizerTask;
+BEGIN {
+  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.66';
+}
+
+# ABSTRACT: Perl 6 STD.pm Colorizer Task
 
 use strict;
 use warnings;
@@ -8,7 +13,6 @@ use Padre::Constant ();
 use Padre::Logger;
 use Padre::Util ();
 
-our $VERSION        = '0.64';
 our $thread_running = 0;
 
 # This is run in the main thread before being handed
@@ -93,11 +97,16 @@ sub finish {
 		for my $htoken (@tokens) {
 			my %token = %{$htoken};
 			my $color = $colors{ $token{rule} };
-			if ($color) {
+			if ( defined $color ) {
 				my $len   = length $token{buffer};
 				my $start = $token{last_pos} - $len;
 				$editor->StartStyling( $start, $color );
 				$editor->SetStyling( $len, $color );
+			} elsif ( $token{rule} eq '0' ) {
+
+				# Why are there such cases?
+			} else {
+				warn "No color found for '$token{rule}'";
 			}
 		}
 		$doc->{tokens} = $self->{tokens};
@@ -124,7 +133,10 @@ sub finish {
 		$doc->check_syntax_in_background( force => 1 );
 		$doc->get_outline( force => 1 );
 	};
-	if ($@) { print "$doc\n"; }
+	if ($@) {
+
+		#print "$doc\n";
+	}
 
 	# finished here
 	$thread_running = 0;
@@ -168,7 +180,7 @@ sub run {
 	my $cmd =
 		  Padre::Perl->perl . " "
 		. Cwd::realpath( File::Spec->join( File::Basename::dirname(__FILE__), 'p6tokens.p5' ) )
-		. " \"$tmp_in\" \"$tmp_out\" \"$tmp_err\" \"$tmp_dir\"";
+		. qq( "$tmp_in" "$tmp_out" "$tmp_err" "$tmp_dir");
 
 	# all this is needed to prevent win32 platforms from:
 	# 1. popping out a command line on each run...
@@ -199,15 +211,15 @@ sub run {
 		local $/ = undef; #enable localized slurp mode
 
 		# slurp the process output...
-		open CHLD_OUT, $tmp_out or warn "Could not open $tmp_out";
-		binmode CHLD_OUT;
-		$out = <CHLD_OUT>;
-		close CHLD_OUT or warn "Could not close $tmp_out\n";
+		open my $CHLD_OUT, '<', $tmp_out or warn "Could not open $tmp_out";
+		binmode $CHLD_OUT;
+		$out = <$CHLD_OUT>;
+		close $CHLD_OUT or warn "Could not close $tmp_out\n";
 
-		open CHLD_ERR, $tmp_err or warn "Cannot open $tmp_err\n";
-		binmode CHLD_ERR, ':utf8';
-		$err = <CHLD_ERR>;
-		close CHLD_ERR or warn "Could not close $tmp_err\n";
+		open my $CHLD_ERR, '<', $tmp_err or warn "Cannot open $tmp_err\n";
+		binmode $CHLD_ERR, ':utf8';
+		$err = <$CHLD_ERR>;
+		close $CHLD_ERR or warn "Could not close $tmp_err\n";
 	}
 
 	if ($err) {
@@ -223,18 +235,18 @@ sub run {
 			if ( $msg =~ /^===SORRY!===/i ) {
 
 				# the following lines are errors until we see the warnings section
-				$severity = 'E';
+				$severity = 2;
 			} elsif ( $msg =~ /^Potential difficulties/i ) {
 
 				# all rest are warnings...
-				$severity = 'W';
+				$severity = 1;
 				$lineno   = undef;
 			} elsif ( $msg =~ /^Undeclared routine/i ) {
 
 				# all rest are warnings...
 				$prefix   = 'Undeclared routine: ';
 				$lineno   = undef;
-				$severity = 'W';
+				$severity = 1;
 			} elsif ( $msg =~ /^\s+(.+?)\s+used at (\d+)/i ) {
 
 				# record the line number
@@ -243,16 +255,6 @@ sub run {
 
 				# record the line number
 				$lineno = $1;
-			} elsif ( $msg =~ /^Can't locate object method ".+?" via package "STD"/i ) {
-
-				# STD lex cache is corrupt...
-				$msg = Wx::gettext(
-					"'STD Lex Cache' folder is corrupt. Please click on 'Plugins/Perl6/Maintenance' and then 'Cleanup STD Lex Cache' and then re-open the file."
-				);
-				push @{$issues}, { line => 1, msg => $msg, severity => 'E', };
-
-				# no need to continue collecting errors...
-				last;
 			}
 			if ($lineno) {
 				push @{$issues}, { line => $lineno, msg => $prefix . $msg, severity => $severity, };
@@ -277,16 +279,36 @@ sub run {
 1;
 
 __END__
+=pod
 
-=head1 AUTHOR
+=head1 NAME
 
-Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
+Padre::Plugin::Perl6::StdColorizerTask - Perl 6 STD.pm Colorizer Task
+
+=head1 VERSION
+
+version 0.66
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+=item *
 
 Gabor Szabo L<http://szabgab.com/>
 
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Padre Developers as in Perl6.pm
+This software is copyright (c) 2010 by Ahmad M. Zawawi.
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

@@ -1,12 +1,15 @@
-package Padre::Plugin::Perl6::Perl6Colorizer;
+package Padre::Plugin::Perl6::Colorizer;
+BEGIN {
+  $Padre::Plugin::Perl6::Colorizer::VERSION = '0.66';
+}
+
+# ABSTRACT: Perl 6 Colorizer
 
 use 5.010;
 use strict;
 use warnings;
 
 use Padre::Wx ();
-
-our $VERSION = '0.64';
 
 # colorize timer to make sure that colorize tasks are scheduled properly...
 my $COLORIZE_TIMER;
@@ -38,7 +41,7 @@ sub colorize {
 				# temporary overlay using the parse tree given by parrot
 				# Create a coloring task
 				my $module = $colorizer eq 'STD'
-					? 'Padre::Plugin::Perl6::Perl6StdColorizerTask'  # STD
+					? 'Padre::Plugin::Perl6::StdColorizerTask'       # STD
 					: 'Padre::Plugin::Perl6::Perl6PgeColorizerTask'; # PGE
 				eval "use $module";
 				my $task = $module->new(
@@ -68,16 +71,36 @@ sub colorize {
 1;
 
 __END__
+=pod
 
-=head1 AUTHOR
+=head1 NAME
 
-Ahmad M. Zawawi C<< <ahmad.zawawi at gmail.com> >>
+Padre::Plugin::Perl6::Colorizer - Perl 6 Colorizer
+
+=head1 VERSION
+
+version 0.66
+
+=head1 AUTHORS
+
+=over 4
+
+=item *
+
+Ahmad M. Zawawi <ahmad.zawawi@gmail.com>
+
+=item *
 
 Gabor Szabo L<http://szabgab.com/>
 
+=back
+
 =head1 COPYRIGHT AND LICENSE
 
-Copyright 2008-2009 Padre Developers as in Perl6.pm
+This software is copyright (c) 2010 by Ahmad M. Zawawi.
 
-This program is free software; you can redistribute it and/or
-modify it under the same terms as Perl 5 itself.
+This is free software; you can redistribute it and/or modify it under
+the same terms as the Perl 5 programming language system itself.
+
+=cut
+

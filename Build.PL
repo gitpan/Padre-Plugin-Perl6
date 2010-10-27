@@ -20,7 +20,7 @@ my %module_build_args = (
     'Gabor Szabo L<http://szabgab.com/>'
   ],
   'dist_name' => 'Padre-Plugin-Perl6',
-  'dist_version' => '0.66',
+  'dist_version' => '0.67',
   'license' => 'perl',
   'module_name' => 'Padre::Plugin::Perl6',
   'recommends' => {},

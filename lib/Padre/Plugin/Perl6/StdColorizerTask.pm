@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::StdColorizerTask;
 BEGIN {
-  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.66';
+  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.67';
 }
 
 # ABSTRACT: Perl 6 STD.pm Colorizer Task
@@ -287,7 +287,7 @@ Padre::Plugin::Perl6::StdColorizerTask - Perl 6 STD.pm Colorizer Task
 
 =head1 VERSION
 
-version 0.66
+version 0.67
 
 =head1 AUTHORS
 

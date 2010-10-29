@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Document;
 BEGIN {
-  $Padre::Plugin::Perl6::Document::VERSION = '0.67';
+  $Padre::Plugin::Perl6::Document::VERSION = '0.68';
 }
 
 # ABSTRACT: Perl 6 Support Document
@@ -183,7 +183,7 @@ Padre::Plugin::Perl6::Document - Perl 6 Support Document
 
 =head1 VERSION
 
-version 0.67
+version 0.68
 
 =head1 AUTHORS
 

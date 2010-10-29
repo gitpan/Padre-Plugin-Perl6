@@ -1,5 +1,8 @@
 Changes
 
+0.68   2010.10.29
+	Removed Test::NeedsDisplay dependency (AZAWAWI)
+
 0.67   2010.10.27
 	t/00-load.t is magically injected by [@PadrePlugin] via [LoadTests] (AZAWAWI)
 

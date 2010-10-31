@@ -51,7 +51,7 @@
          "url" : "http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/"
       }
    },
-   "version" : "0.68",
+   "version" : "0.69",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -132,7 +132,7 @@
          {
             "class" : "Dist::Zilla::Plugin::CompileTests",
             "name" : "@PadrePlugin/CompileTests",
-            "version" : "1.103010"
+            "version" : "1.103030"
          },
          {
             "class" : "Dist::Zilla::Plugin::LoadTests",

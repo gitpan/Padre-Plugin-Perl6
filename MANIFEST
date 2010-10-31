@@ -17,7 +17,6 @@ lib/Padre/Plugin/Perl6/StdColorizer.pm
 lib/Padre/Plugin/Perl6/StdColorizerTask.pm
 lib/Padre/Plugin/Perl6/Syntax.pm
 lib/Padre/Plugin/Perl6/Util.pm
-lib/Padre/Plugin/Perl6/p6tokens.p5
 share/icons/camelia-big.png
 share/icons/camelia.png
 share/locale/Padre__Plugin__Perl6-ar.mo
@@ -31,6 +30,7 @@ share/locale/Padre__Plugin__Perl6-pl.mo
 share/locale/Padre__Plugin__Perl6-pt-br.mo
 share/locale/Padre__Plugin__Perl6-tr.mo
 share/locale/Padre__Plugin__Perl6-zh-tw.mo
+share/p6tokens.p5
 share/templates/p6_class.p6
 share/templates/p6_grammar.p6
 share/templates/p6_inline_in_p5.p5

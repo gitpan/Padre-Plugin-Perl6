@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Syntax;
 BEGIN {
-  $Padre::Plugin::Perl6::Syntax::VERSION = '0.68';
+  $Padre::Plugin::Perl6::Syntax::VERSION = '0.69';
 }
 
 # ABSTRACT: Perl document background syntax-checker
@@ -62,7 +62,7 @@ Padre::Plugin::Perl6::Syntax - Perl document background syntax-checker
 
 =head1 VERSION
 
-version 0.68
+version 0.69
 
 =head1 SYNOPSIS
 

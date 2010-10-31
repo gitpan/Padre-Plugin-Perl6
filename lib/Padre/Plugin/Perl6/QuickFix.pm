@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::QuickFix;
 BEGIN {
-  $Padre::Plugin::Perl6::QuickFix::VERSION = '0.68';
+  $Padre::Plugin::Perl6::QuickFix::VERSION = '0.69';
 }
 
 # ABSTRACT: Padre Perl 6 Quick Fix Provider
@@ -712,7 +712,7 @@ Padre::Plugin::Perl6::QuickFix - Padre Perl 6 Quick Fix Provider
 
 =head1 VERSION
 
-version 0.68
+version 0.69
 
 =head1 DESCRIPTION
 

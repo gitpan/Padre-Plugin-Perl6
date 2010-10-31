@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Preferences;
 BEGIN {
-  $Padre::Plugin::Perl6::Preferences::VERSION = '0.68';
+  $Padre::Plugin::Perl6::Preferences::VERSION = '0.69';
 }
 
 # ABSTRACT: Preferences Dialog
@@ -146,7 +146,7 @@ Padre::Plugin::Perl6::Preferences - Preferences Dialog
 
 =head1 VERSION
 
-version 0.68
+version 0.69
 
 =head1 AUTHORS
 

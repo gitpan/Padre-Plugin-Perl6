@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::StdColorizerTask;
 BEGIN {
-  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.68';
+  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.69';
 }
 
 # ABSTRACT: Perl 6 STD.pm Colorizer Task
@@ -179,7 +179,7 @@ sub run {
 	require File::Spec;
 	my $cmd =
 		  Padre::Perl->perl . " "
-		. Cwd::realpath( File::Spec->join( File::Basename::dirname(__FILE__), 'p6tokens.p5' ) )
+		.  File::Spec->catfile( Padre::Util::share('Perl6'), 'p6tokens.p5')
 		. qq( "$tmp_in" "$tmp_out" "$tmp_err" "$tmp_dir");
 
 	# all this is needed to prevent win32 platforms from:
@@ -287,7 +287,7 @@ Padre::Plugin::Perl6::StdColorizerTask - Perl 6 STD.pm Colorizer Task
 
 =head1 VERSION
 
-version 0.68
+version 0.69
 
 =head1 AUTHORS
 

@@ -1,5 +1,10 @@
 Changes
 
+0.70   2010.12.06
+	Restored missing POT/PO translation sources (Damyan Ivanov, AZAWAWI)
+	Renamed method 'show_preferences' to 'plugin_preferences' (ZENOG)
+	Use App::Grok when you actually need it in Perl 6 Help (AZAWAWI)
+
 0.69   2010.10.31
 	Fixed a regression in the highlighter and syntax checker (AZAWAWI)
 

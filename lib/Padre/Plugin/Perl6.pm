@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6;
 BEGIN {
-  $Padre::Plugin::Perl6::VERSION = '0.69';
+  $Padre::Plugin::Perl6::VERSION = '0.70';
 }
 
 # ABSTRACT: Perl 6 Support for Padre
@@ -243,7 +243,7 @@ sub menu_plugins {
 	Wx::Event::EVT_MENU(
 		$main,
 		$self->{menu}->Append( -1, Wx::gettext("Preferences"), ),
-		sub { $self->show_preferences; },
+		sub { $self->plugin_preferences; },
 	);
 
 	# the famous about menu item...
@@ -298,7 +298,7 @@ sub _create_from_template {
 	return;
 }
 
-sub show_preferences {
+sub plugin_preferences {
 	my $self = shift;
 
 	require Padre::Plugin::Perl6::Preferences;
@@ -626,7 +626,7 @@ Padre::Plugin::Perl6 - Perl 6 Support for Padre
 
 =head1 VERSION
 
-version 0.69
+version 0.70
 
 =head1 SYNOPSIS
 

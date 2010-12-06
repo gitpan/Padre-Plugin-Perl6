@@ -7,7 +7,7 @@ use Module::Build 0.3601;
 
 my %module_build_args = (
   'build_requires' => {
-    'Locale::Msgfmt' => '0.14',
+    'Locale::Msgfmt' => '0.15',
     'Module::Build' => '0.3601',
     'Test::More' => '0'
   },
@@ -20,7 +20,7 @@ my %module_build_args = (
     'Gabor Szabo L<http://szabgab.com/>'
   ],
   'dist_name' => 'Padre-Plugin-Perl6',
-  'dist_version' => '0.69',
+  'dist_version' => '0.70',
   'license' => 'perl',
   'module_name' => 'Padre::Plugin::Perl6',
   'recommends' => {},

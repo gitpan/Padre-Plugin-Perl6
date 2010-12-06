@@ -5,7 +5,7 @@
       "Gabor Szabo L<http://szabgab.com/>"
    ],
    "dynamic_config" : 0,
-   "generated_by" : "Dist::Zilla version 4.102342, CPAN::Meta::Converter version 2.102400",
+   "generated_by" : "Dist::Zilla version 4.102345, CPAN::Meta::Converter version 2.102400",
    "license" : [
       "perl_5"
    ],
@@ -39,7 +39,7 @@
       },
       "test" : {
          "requires" : {
-            "Locale::Msgfmt" : "0.14",
+            "Locale::Msgfmt" : "0.15",
             "Test::More" : 0
          }
       }
@@ -51,73 +51,73 @@
          "url" : "http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/"
       }
    },
-   "version" : "0.69",
+   "version" : "0.70",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
             "class" : "Dist::Zilla::Plugin::GatherDir",
             "name" : "@PadrePlugin/@Filter/GatherDir",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::PruneCruft",
             "name" : "@PadrePlugin/@Filter/PruneCruft",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ManifestSkip",
             "name" : "@PadrePlugin/@Filter/ManifestSkip",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaYAML",
             "name" : "@PadrePlugin/@Filter/MetaYAML",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::License",
             "name" : "@PadrePlugin/@Filter/License",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::Readme",
             "name" : "@PadrePlugin/@Filter/Readme",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ExtraTests",
             "name" : "@PadrePlugin/@Filter/ExtraTests",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ExecDir",
             "name" : "@PadrePlugin/@Filter/ExecDir",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ShareDir",
             "name" : "@PadrePlugin/@Filter/ShareDir",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::Manifest",
             "name" : "@PadrePlugin/@Filter/Manifest",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::TestRelease",
             "name" : "@PadrePlugin/@Filter/TestRelease",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ConfirmRelease",
             "name" : "@PadrePlugin/@Filter/ConfirmRelease",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::UploadToCPAN",
             "name" : "@PadrePlugin/@Filter/UploadToCPAN",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::CheckChangeLog",
@@ -135,11 +135,6 @@
             "version" : "1.103030"
          },
          {
-            "class" : "Dist::Zilla::Plugin::LoadTests",
-            "name" : "@PadrePlugin/LoadTests",
-            "version" : "0.05"
-         },
-         {
             "class" : "Dist::Zilla::Plugin::EOLTests",
             "name" : "@PadrePlugin/EOLTests",
             "version" : "0.02"
@@ -147,7 +142,7 @@
          {
             "class" : "Dist::Zilla::Plugin::PkgVersion",
             "name" : "@PadrePlugin/PkgVersion",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::PodWeaver",
@@ -157,37 +152,37 @@
          {
             "class" : "Dist::Zilla::Plugin::MetaResources",
             "name" : "@PadrePlugin/MetaResources",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaConfig",
             "name" : "@PadrePlugin/MetaConfig",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::MetaJSON",
             "name" : "@PadrePlugin/MetaJSON",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::NextRelease",
             "name" : "@PadrePlugin/NextRelease",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
             "name" : "@PadrePlugin/PodSyntaxTests",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::ModuleBuild",
             "name" : "@PadrePlugin/ModuleBuild",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::LocaleMsgfmt",
             "name" : "@PadrePlugin/LocaleMsgfmt",
-            "version" : "1.100970"
+            "version" : "1.202"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",
@@ -198,7 +193,7 @@
                }
             },
             "name" : "@PadrePlugin/TestMoreDeps",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",
@@ -209,7 +204,7 @@
                }
             },
             "name" : "@PadrePlugin/LocaleMsgfmtDeps",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",
@@ -220,7 +215,7 @@
                }
             },
             "name" : "@PadrePlugin/PadreDeps",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::Prereqs",
@@ -231,27 +226,27 @@
                }
             },
             "name" : "Prereqs",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":InstallModules",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":TestFiles",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ExecFiles",
-            "version" : "4.102342"
+            "version" : "4.102345"
          },
          {
             "class" : "Dist::Zilla::Plugin::FinderCode",
             "name" : ":ShareFiles",
-            "version" : "4.102342"
+            "version" : "4.102345"
          }
       ],
       "zilla" : {
@@ -259,7 +254,7 @@
          "config" : {
             "is_trial" : 0
          },
-         "version" : "4.102342"
+         "version" : "4.102345"
       }
    }
 }

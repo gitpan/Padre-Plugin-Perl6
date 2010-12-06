@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Help;
 BEGIN {
-  $Padre::Plugin::Perl6::Help::VERSION = '0.69';
+  $Padre::Plugin::Perl6::Help::VERSION = '0.70';
 }
 
 # ABSTRACT: Perl 6 Help provider for Padre
@@ -9,7 +9,6 @@ use strict;
 use warnings;
 
 # For Perl 6 documentation support
-use App::Grok   ();
 use Padre::Help ();
 
 our @ISA = 'Padre::Help';
@@ -24,7 +23,7 @@ use Class::XSAccessor accessors => {
 #
 sub help_init {
 	my $self = shift;
-
+	require App::Grok;
 	$self->_grok( App::Grok->new );
 }
 
@@ -67,7 +66,7 @@ Padre::Plugin::Perl6::Help - Perl 6 Help provider for Padre
 
 =head1 VERSION
 
-version 0.69
+version 0.70
 
 =head1 DESCRIPTION
 

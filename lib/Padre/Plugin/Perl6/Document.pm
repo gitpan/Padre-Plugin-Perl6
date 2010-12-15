@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Document;
 BEGIN {
-  $Padre::Plugin::Perl6::Document::VERSION = '0.70';
+  $Padre::Plugin::Perl6::Document::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 Support Document
@@ -16,7 +16,10 @@ our @ISA = 'Padre::Document';
 
 # Task Integration
 sub task_functions {
-	return 'Padre::Plugin::Perl6::FunctionList';
+
+	# There is no actual need to support it
+	# We already have outline support
+	return;
 }
 
 sub task_outline {
@@ -183,7 +186,7 @@ Padre::Plugin::Perl6::Document - Perl 6 Support Document
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 AUTHORS
 

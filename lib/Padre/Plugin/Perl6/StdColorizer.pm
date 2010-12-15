@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::StdColorizer;
 BEGIN {
-  $Padre::Plugin::Perl6::StdColorizer::VERSION = '0.70';
+  $Padre::Plugin::Perl6::StdColorizer::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 Colorizer
@@ -28,7 +28,7 @@ Padre::Plugin::Perl6::StdColorizer - Perl 6 Colorizer
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 AUTHORS
 

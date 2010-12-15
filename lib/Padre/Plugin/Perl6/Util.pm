@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Util;
 BEGIN {
-  $Padre::Plugin::Perl6::Util::VERSION = '0.70';
+  $Padre::Plugin::Perl6::Util::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 plugin utilities
@@ -141,7 +141,7 @@ Padre::Plugin::Perl6::Util - Perl 6 plugin utilities
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 AUTHORS
 

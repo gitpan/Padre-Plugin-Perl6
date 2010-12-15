@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Colorizer;
 BEGIN {
-  $Padre::Plugin::Perl6::Colorizer::VERSION = '0.70';
+  $Padre::Plugin::Perl6::Colorizer::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 Colorizer
@@ -37,6 +37,7 @@ sub colorize {
 			$main,
 			$timer_id,
 			sub {
+				my $text = $doc->text_with_one_nl or return;
 
 				# temporary overlay using the parse tree given by parrot
 				# Create a coloring task
@@ -45,7 +46,7 @@ sub colorize {
 					: 'Padre::Plugin::Perl6::Perl6PgeColorizerTask'; # PGE
 				eval "use $module";
 				my $task = $module->new(
-					text => $doc->text_with_one_nl,
+					text => $text,
 				);
 
 				# hand off to the task manager
@@ -79,7 +80,7 @@ Padre::Plugin::Perl6::Colorizer - Perl 6 Colorizer
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 AUTHORS
 

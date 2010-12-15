@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::StdColorizerTask;
 BEGIN {
-  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.70';
+  $Padre::Plugin::Perl6::StdColorizerTask::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 STD.pm Colorizer Task
@@ -179,7 +179,7 @@ sub run {
 	require File::Spec;
 	my $cmd =
 		  Padre::Perl->perl . " "
-		.  File::Spec->catfile( Padre::Util::share('Perl6'), 'p6tokens.p5')
+		. File::Spec->catfile( Padre::Util::share('Perl6'), 'p6tokens.p5' )
 		. qq( "$tmp_in" "$tmp_out" "$tmp_err" "$tmp_dir");
 
 	# all this is needed to prevent win32 platforms from:
@@ -228,25 +228,25 @@ sub run {
 		$err =~ s/\033\[\d+(?:;\d+(?:;\d+)?)?m//g;
 		TRACE(qq{STD.pm warning/error:\n$err\n}) if DEBUG;
 		my @messages = split /\n/, $err;
-		my ( $lineno, $severity );
+		my ( $lineno, $type );
 		my $issues = [];
 		my $prefix = '';
 		for my $msg (@messages) {
 			if ( $msg =~ /^===SORRY!===/i ) {
 
 				# the following lines are errors until we see the warnings section
-				$severity = 2;
+				$type = 'F';
 			} elsif ( $msg =~ /^Potential difficulties/i ) {
 
 				# all rest are warnings...
-				$severity = 1;
-				$lineno   = undef;
+				$type   = 'W';
+				$lineno = undef;
 			} elsif ( $msg =~ /^Undeclared routine/i ) {
 
 				# all rest are warnings...
-				$prefix   = 'Undeclared routine: ';
-				$lineno   = undef;
-				$severity = 1;
+				$prefix = 'Undeclared routine: ';
+				$lineno = undef;
+				$type   = 'W';
 			} elsif ( $msg =~ /^\s+(.+?)\s+used at (\d+)/i ) {
 
 				# record the line number
@@ -257,7 +257,7 @@ sub run {
 				$lineno = $1;
 			}
 			if ($lineno) {
-				push @{$issues}, { line => $lineno, msg => $prefix . $msg, severity => $severity, };
+				push @{$issues}, { line => $lineno, message => $prefix . $msg, type => $type, };
 			}
 		}
 		$self->{issues} = $issues;
@@ -287,7 +287,7 @@ Padre::Plugin::Perl6::StdColorizerTask - Perl 6 STD.pm Colorizer Task
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 AUTHORS
 

@@ -1,5 +1,8 @@
 Changes
 
+0.71   2010.12.15
+	Fixed Padre crash when functions list is enabled (AZAWAWI)
+
 0.70   2010.12.06
 	Restored missing POT/PO translation sources (Damyan Ivanov, AZAWAWI)
 	Renamed method 'show_preferences' to 'plugin_preferences' (ZENOG)
@@ -13,6 +16,7 @@ Changes
 
 0.67   2010.10.27
 	t/00-load.t is magically injected by [@PadrePlugin] via [LoadTests] (AZAWAWI)
+	Support Padre 0.76 syntax checker (AZAWAWI)
 
 0.66   2010.10.23
 	Switch to Dist::Zilla

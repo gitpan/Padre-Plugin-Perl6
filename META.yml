@@ -5,10 +5,10 @@ author:
   - 'Gabor Szabo L<http://szabgab.com/>'
 build_requires:
   Locale::Msgfmt: 0.15
-  Module::Build: 0.3601
   Test::More: 0
 configure_requires:
-  Module::Build: 0.3601
+  ExtUtils::MakeMaker: 6.31
+  File::ShareDir::Install: 0.03
 dynamic_config: 0
 generated_by: 'Dist::Zilla version 4.102345, CPAN::Meta::Converter version 2.102400'
 license: perl
@@ -20,7 +20,7 @@ requires:
   App::Grok: 0.22
   Class::XSAccessor: 1.02
   File::Which: 0.05
-  Padre: 0.72
+  Padre: 0.76
   Perl6::Doc: 0.45
   Syntax::Highlight::Perl6: 0.87
   URI: 1.37
@@ -28,7 +28,7 @@ requires:
 resources:
   homepage: http://padre.perlide.org
   repository: http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/
-version: 0.70
+version: 0.71
 x_Dist_Zilla:
   plugins:
     -
@@ -66,6 +66,10 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::ShareDir
       name: '@PadrePlugin/@Filter/ShareDir'
+      version: 4.102345
+    -
+      class: Dist::Zilla::Plugin::MakeMaker
+      name: '@PadrePlugin/@Filter/MakeMaker'
       version: 4.102345
     -
       class: Dist::Zilla::Plugin::Manifest
@@ -126,10 +130,6 @@ x_Dist_Zilla:
     -
       class: Dist::Zilla::Plugin::PodSyntaxTests
       name: '@PadrePlugin/PodSyntaxTests'
-      version: 4.102345
-    -
-      class: Dist::Zilla::Plugin::ModuleBuild
-      name: '@PadrePlugin/ModuleBuild'
       version: 4.102345
     -
       class: Dist::Zilla::Plugin::LocaleMsgfmt

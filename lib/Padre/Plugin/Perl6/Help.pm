@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Help;
 BEGIN {
-  $Padre::Plugin::Perl6::Help::VERSION = '0.70';
+  $Padre::Plugin::Perl6::Help::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 Help provider for Padre
@@ -66,7 +66,7 @@ Padre::Plugin::Perl6::Help - Perl 6 Help provider for Padre
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 DESCRIPTION
 

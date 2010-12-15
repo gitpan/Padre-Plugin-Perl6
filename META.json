@@ -15,14 +15,10 @@
    },
    "name" : "Padre-Plugin-Perl6",
    "prereqs" : {
-      "build" : {
-         "requires" : {
-            "Module::Build" : "0.3601"
-         }
-      },
       "configure" : {
          "requires" : {
-            "Module::Build" : "0.3601"
+            "ExtUtils::MakeMaker" : "6.31",
+            "File::ShareDir::Install" : "0.03"
          }
       },
       "runtime" : {
@@ -30,7 +26,7 @@
             "App::Grok" : "0.22",
             "Class::XSAccessor" : "1.02",
             "File::Which" : "0.05",
-            "Padre" : "0.72",
+            "Padre" : "0.76",
             "Perl6::Doc" : "0.45",
             "Syntax::Highlight::Perl6" : "0.87",
             "URI" : "1.37",
@@ -51,7 +47,7 @@
          "url" : "http://svn.perlide.org/padre/trunk/Padre-Plugin-Perl6/"
       }
    },
-   "version" : "0.70",
+   "version" : "0.71",
    "x_Dist_Zilla" : {
       "plugins" : [
          {
@@ -97,6 +93,11 @@
          {
             "class" : "Dist::Zilla::Plugin::ShareDir",
             "name" : "@PadrePlugin/@Filter/ShareDir",
+            "version" : "4.102345"
+         },
+         {
+            "class" : "Dist::Zilla::Plugin::MakeMaker",
+            "name" : "@PadrePlugin/@Filter/MakeMaker",
             "version" : "4.102345"
          },
          {
@@ -172,11 +173,6 @@
          {
             "class" : "Dist::Zilla::Plugin::PodSyntaxTests",
             "name" : "@PadrePlugin/PodSyntaxTests",
-            "version" : "4.102345"
-         },
-         {
-            "class" : "Dist::Zilla::Plugin::ModuleBuild",
-            "name" : "@PadrePlugin/ModuleBuild",
             "version" : "4.102345"
          },
          {

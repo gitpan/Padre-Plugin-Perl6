@@ -1,6 +1,6 @@
 package Padre::Plugin::Perl6::Outline;
 BEGIN {
-  $Padre::Plugin::Perl6::Outline::VERSION = '0.70';
+  $Padre::Plugin::Perl6::Outline::VERSION = '0.71';
 }
 
 # ABSTRACT: Perl 6 Outline background task
@@ -193,7 +193,7 @@ Padre::Plugin::Perl6::Outline - Perl 6 Outline background task
 
 =head1 VERSION
 
-version 0.70
+version 0.71
 
 =head1 SYNOPSIS
 
